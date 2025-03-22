@@ -515,7 +515,7 @@ For this solution we have had to enumerate the array again for the `GetItems` ap
 | GetItemsWithRejection       | Vulnerable | 24     | 2                       |   293.39 ns |  3.104 ns |  2.904 ns |     ? |       ? | 0.0172 |     144 B |           ? |
 
 
-As expected, this has added overhead, particularly `GetItemsWithRejection`, which is neither secure, not particularly fast. If security is not an issue, then `RejectionSample` still performs decently well. If security is desired, then there is a choice between `RejectionSampleSecure` with it's slightly reduced entropy per output character, and `GetItemsWithRejectionSecure`.
+As expected, this has added overhead, particularly `GetItemsWithRejection`, which is neither secure, nor particularly fast. If security is not an issue, then `RejectionSample` still performs decently well. If security is desired, then there is a choice between `RejectionSampleSecure` with it's slightly reduced entropy per output character, and `GetItemsWithRejectionSecure`.
 
 # Notes
 
