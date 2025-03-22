@@ -24,15 +24,13 @@ public string GeneratePassword(int length)
 
 ```
 
-It surprised me, because it's in the perfect spot of being just about good enough to get through some reviews. It would certainly get a few remarks if reviewed as a standalone feature, but it could sneak through if bundled as part of 20 files in a wider feature. This is a benefit of small commits, but that's a post for another day.
+It surprised me, because it's in the perfect spot of being just about good enough to sneak through some reviews. It would certainly get a few remarks if reviewed as a standalone feature, but it could get through if bundled as part of 20 files in a wider feature. This is a benefit of small commits, but that's a post for another day.
 
 Yet it's also bad code. There are to me, three main concerns:
 
-* Performance - The use of `new System.Random()` within the method rather than using `System.Random.Shared`, and string concatenation rather than `StringBuilder`, are two things in particular that stand out as quick wins for performance.
-* Security - Using `System.Random` instead of a cryptographically secure generator such as `System.Security.Cryptography.RandomNumberGenerator` is a concern for a password generator.
+* Performance - The use of `new System.Random()` rather than `System.Random.Shared`, and string concatenation rather than `StringBuilder`, are two things in particular that stand out as quick wins for performance.
+* Security - Using `System.Random` instead of a cryptographically secure generator such as `System.Security.Cryptography.RandomNumberGenerator` is a concern for any password generator.
 * Lack of checking output for symbols - It's desirable for passwords to always have at least one symbol to pass most validation sets. With this password generator, you'd be fine most of the time given the input set, but then occassionally be frustrated when it generates a password without symbols. This would happen around 5% of the time for a 16 character password. Just often enough to get missed in testing then hit you later.
-
-I'm tempted to use this code if I have to perform interviews; I think asking for a review of it would let someone demonstrate their attitudes and abilities.
 
 ## Improving Security
 Let's address security first, it's no good having a password generator be fast if you can't trust the output.
