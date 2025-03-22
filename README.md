@@ -577,4 +577,4 @@ It's a compile time constant, so you wouldn't expect it to have any effect on pe
 
 ## Addendum
 
-Here's a benchmark run with all the functions, with a single baseline of the original co-pilot output.
+Here's a benchmark run with all the functions, with a single baseline of the original co-pilot output. The arguments were changed to properties to support cleaner parameterisation within BenchmarkDotNet and a shared common baseline set.
