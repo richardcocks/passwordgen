@@ -129,12 +129,11 @@ namespace PasswordGen
             {
                 char[] buffer = Random.Shared.GetItems<char>(characters, length);
 
-                if (buffer.Count(char.IsAsciiLetterOrDigit) >= minmumSpecialCharacters)
+                if ((buffer.Length - buffer.Count(char.IsAsciiLetterOrDigit)) >= minmumSpecialCharacters)
                 {
                     return new(buffer);
                 }
             }
-
 
         }
 
@@ -149,7 +148,7 @@ namespace PasswordGen
             {
                 char[] buffer = RandomNumberGenerator.GetItems<char>(characters, length);
 
-                if (buffer.Count(char.IsAsciiLetterOrDigit) >= minmumSpecialCharacters)
+                if ((buffer.Length - buffer.Count(char.IsAsciiLetterOrDigit)) >= minmumSpecialCharacters)
                 {
                     return new(buffer);
                 }
