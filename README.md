@@ -1,12 +1,12 @@
 # Fixing a password generator
 
-I've been [nerd-sniped](https://xkcd.com/356/) by co-pilot. I was working on a laptop which had it enabled, and was implementing something when it suggested autocompleting GeneratePassword.
+I've been [nerd-sniped](https://xkcd.com/356/) by co-pilot. I don't normally have it enabled, but was working on another machine which did. I was implementing a feature when it suggested autocompleting GeneratePassword.
 
-It took me on a journey of honing my benchmarking skills with BenchmarkDotNet, and discovering what did and did not affect performance in microbenchmarking.
-
-It suggested:
+It took me on a journey of benchmarking with BenchmarkDotNet and discovering what did and did not affect performance in microbenchmarking.
 
 ## Co-pilot output
+
+The original suggestion, straight from co-pilot was:
 
 ```csharp
 public string GeneratePassword(int length)
