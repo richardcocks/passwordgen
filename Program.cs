@@ -12,4 +12,4 @@ Console.WriteLine($"PasswordUsingCharBufferCharLookupSpan: {x.PasswordUsingCharB
 Console.WriteLine($"PasswordUsingCharBufferCharLookupReducedSetPregen: {x.PasswordUsingCharBufferCharLookupReducedSetPregen()}");
 */
 
-BenchmarkRunner.Run<PasswordGenerator>();
+BenchmarkRunner.Run<Example5>();
