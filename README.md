@@ -105,7 +105,7 @@ AMD Ryzen 7 3800X, 1 CPU, 16 logical and 8 physical cores
 | GeneratePasswordSharedRandom | 32     |   308.8 ns |  4.07 ns |  3.40 ns |  0.82 |    0.02 | 0.2217 |    1856 B |        0.96 |
 
 
-We can now demonstrably see that avoiding `new System.Random()` increased performance, roughly 30% faster for the 24 character example.
+We can now see that avoiding `new System.Random()` increased performance, roughly 30% faster for the 24 character example.
 
 We can also see that using `RandomNumberGenerator.GetInt32` destroyed our performance, taking us into the microsecond territory and taking around 8 times as long to do the same work.
 
@@ -233,7 +233,7 @@ To eliminate this bias, we need a character set that divides evenly into 256. We
 
 We'll cut down to 64, because it's difficult to think of 50 more recognisable characters, and we can also take the opportunity to cut out characters that can be confused for each other in some fonts, such as I and l. 
 
-The reduction in entropy for a 16 character password is going from 74^16~100 bits, to 64^16 = 96.  So we've lost 4 bits from our password. If this is a concern, then we can increase our password length by a character to accomodate.
+The reduction in entropy for a 16 character password is going from `74^16  ~= 100 bits`, to `64^16 = 96 bits`.  So we've lost around 4 bits from our password. If this is a concern, then we can increase our password length by one character to accomodate.
 
 It is a weakening, but as long as it's properly documented, should not be a concern.
 
