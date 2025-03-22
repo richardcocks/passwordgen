@@ -578,3 +578,174 @@ It's a compile time constant, so you wouldn't expect it to have any effect on pe
 ## Addendum
 
 Here's a benchmark run with all the functions, with a single baseline of the original co-pilot output. The arguments were changed to properties to support cleaner parameterisation within BenchmarkDotNet and a shared common baseline set.
+
+<details>
+
+<summary>Full results comparison</summary>
+
+
+| Method                       | Categories | length | minmumSpecialCharacters | Mean        | Error     | StdDev    | Median      | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
+|----------------------------- |----------- |------- |------------------------ |------------:|----------:|----------:|------------:|------:|--------:|-------:|----------:|------------:|
+| **GeneratePassword**             | ****           | **14**     | **0**                       |   **219.15 ns** |  **3.777 ns** |  **3.533 ns** |   **218.45 ns** |  **1.00** |    **0.02** | **0.0753** |     **632 B** |        **1.00** |
+| SecureRandom                 |            | 14     | 0                       | 1,399.80 ns | 10.911 ns | 10.206 ns | 1,402.17 ns |  6.39 |    0.11 | 0.0668 |     560 B |        0.89 |
+| GeneratePasswordSharedRandom |            | 14     | 0                       |   132.45 ns |  2.005 ns |  1.674 ns |   132.13 ns |  0.60 |    0.01 | 0.0668 |     560 B |        0.89 |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **GeneratePassword**             | ****           | **14**     | **1**                       |   **220.16 ns** |  **2.504 ns** |  **2.220 ns** |   **219.45 ns** |  **1.00** |    **0.01** | **0.0753** |     **632 B** |        **1.00** |
+| SecureRandom                 |            | 14     | 1                       | 1,345.98 ns | 10.294 ns |  9.629 ns | 1,344.02 ns |  6.11 |    0.07 | 0.0668 |     560 B |        0.89 |
+| GeneratePasswordSharedRandom |            | 14     | 1                       |   130.18 ns |  1.264 ns |  1.055 ns |   130.34 ns |  0.59 |    0.01 | 0.0668 |     560 B |        0.89 |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **GeneratePassword**             | ****           | **14**     | **2**                       |   **215.84 ns** |  **4.039 ns** |  **3.778 ns** |   **215.82 ns** |  **1.00** |    **0.02** | **0.0753** |     **632 B** |        **1.00** |
+| SecureRandom                 |            | 14     | 2                       | 1,364.52 ns |  9.562 ns |  8.477 ns | 1,361.26 ns |  6.32 |    0.11 | 0.0668 |     560 B |        0.89 |
+| GeneratePasswordSharedRandom |            | 14     | 2                       |   131.08 ns |  2.651 ns |  3.886 ns |   131.31 ns |  0.61 |    0.02 | 0.0668 |     560 B |        0.89 |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **GeneratePassword**             | ****           | **24**     | **0**                       |   **308.24 ns** |  **3.973 ns** |  **3.318 ns** |   **309.45 ns** |  **1.00** |    **0.01** | **0.1516** |    **1272 B** |        **1.00** |
+| SecureRandom                 |            | 24     | 0                       | 2,219.32 ns | 24.466 ns | 22.885 ns | 2,213.43 ns |  7.20 |    0.10 | 0.1411 |    1200 B |        0.94 |
+| GeneratePasswordSharedRandom |            | 24     | 0                       |   231.78 ns |  4.429 ns |  3.926 ns |   229.76 ns |  0.75 |    0.01 | 0.1433 |    1200 B |        0.94 |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **GeneratePassword**             | ****           | **24**     | **1**                       |   **311.60 ns** |  **6.065 ns** |  **5.957 ns** |   **309.58 ns** |  **1.00** |    **0.03** | **0.1516** |    **1272 B** |        **1.00** |
+| SecureRandom                 |            | 24     | 1                       | 2,329.18 ns | 22.799 ns | 21.326 ns | 2,332.30 ns |  7.48 |    0.15 | 0.1411 |    1200 B |        0.94 |
+| GeneratePasswordSharedRandom |            | 24     | 1                       |   233.33 ns |  4.394 ns |  4.513 ns |   233.14 ns |  0.75 |    0.02 | 0.1433 |    1200 B |        0.94 |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **GeneratePassword**             | ****           | **24**     | **2**                       |   **307.51 ns** |  **3.086 ns** |  **2.577 ns** |   **306.11 ns** |  **1.00** |    **0.01** | **0.1516** |    **1272 B** |        **1.00** |
+| SecureRandom                 |            | 24     | 2                       | 2,366.38 ns | 19.228 ns | 17.986 ns | 2,361.68 ns |  7.70 |    0.08 | 0.1411 |    1200 B |        0.94 |
+| GeneratePasswordSharedRandom |            | 24     | 2                       |   236.00 ns |  4.727 ns |  4.191 ns |   234.93 ns |  0.77 |    0.01 | 0.1433 |    1200 B |        0.94 |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **GeneratePassword**             | ****           | **32**     | **0**                       |   **388.60 ns** |  **7.489 ns** |  **8.624 ns** |   **386.26 ns** |  **1.00** |    **0.03** | **0.2303** |    **1928 B** |        **1.00** |
+| SecureRandom                 |            | 32     | 0                       | 3,216.55 ns | 23.617 ns | 19.721 ns | 3,216.24 ns |  8.28 |    0.19 | 0.2213 |    1856 B |        0.96 |
+| GeneratePasswordSharedRandom |            | 32     | 0                       |   305.47 ns |  0.898 ns |  0.750 ns |   305.38 ns |  0.79 |    0.02 | 0.2217 |    1856 B |        0.96 |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **GeneratePassword**             | ****           | **32**     | **1**                       |   **386.91 ns** |  **7.637 ns** |  **8.172 ns** |   **384.83 ns** |  **1.00** |    **0.03** | **0.2303** |    **1928 B** |        **1.00** |
+| SecureRandom                 |            | 32     | 1                       | 3,148.02 ns | 28.376 ns | 26.543 ns | 3,139.43 ns |  8.14 |    0.18 | 0.2213 |    1856 B |        0.96 |
+| GeneratePasswordSharedRandom |            | 32     | 1                       |   307.88 ns |  3.509 ns |  3.283 ns |   306.87 ns |  0.80 |    0.02 | 0.2217 |    1856 B |        0.96 |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **GeneratePassword**             | ****           | **32**     | **2**                       |   **386.19 ns** |  **3.782 ns** |  **3.158 ns** |   **386.55 ns** |  **1.00** |    **0.01** | **0.2303** |    **1928 B** |        **1.00** |
+| SecureRandom                 |            | 32     | 2                       | 3,146.05 ns | 24.294 ns | 22.724 ns | 3,135.68 ns |  8.15 |    0.09 | 0.2213 |    1856 B |        0.96 |
+| GeneratePasswordSharedRandom |            | 32     | 2                       |   316.71 ns |  2.922 ns |  2.281 ns |   316.13 ns |  0.82 |    0.01 | 0.2217 |    1856 B |        0.96 |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilderSecure**          | **Secure**     | **14**     | **0**                       | **1,182.97 ns** |  **8.203 ns** |  **7.673 ns** | **1,184.59 ns** |     **?** |       **?** | **0.0191** |     **160 B** |           **?** |
+| CharArraySecure              | Secure     | 14     | 0                       | 1,173.34 ns |  5.656 ns |  5.014 ns | 1,173.69 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+| BufferSecure                 | Secure     | 14     | 0                       |    87.29 ns |  0.859 ns |  0.761 ns |    87.04 ns |     ? |       ? | 0.0181 |     152 B |           ? |
+| GetItemsSecure               | Secure     | 14     | 0                       |   213.18 ns |  1.963 ns |  1.740 ns |   212.62 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+| RejectionSampleSecure        | Secure     | 14     | 0                       |    97.78 ns |  0.698 ns |  0.619 ns |    97.68 ns |     ? |       ? | 0.0181 |     152 B |           ? |
+| GetItemsWithRejectionSecure  | Secure     | 14     | 0                       |   277.61 ns |  1.198 ns |  1.062 ns |   277.86 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilderSecure**          | **Secure**     | **14**     | **1**                       | **1,193.72 ns** |  **5.738 ns** |  **5.367 ns** | **1,192.97 ns** |     **?** |       **?** | **0.0191** |     **160 B** |           **?** |
+| CharArraySecure              | Secure     | 14     | 1                       | 1,166.09 ns |  5.210 ns |  4.874 ns | 1,166.42 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+| BufferSecure                 | Secure     | 14     | 1                       |    85.78 ns |  0.408 ns |  0.341 ns |    85.75 ns |     ? |       ? | 0.0181 |     152 B |           ? |
+| GetItemsSecure               | Secure     | 14     | 1                       |   210.18 ns |  1.644 ns |  1.538 ns |   210.12 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+| RejectionSampleSecure        | Secure     | 14     | 1                       |   102.51 ns |  1.233 ns |  1.154 ns |   101.94 ns |     ? |       ? | 0.0181 |     152 B |           ? |
+| GetItemsWithRejectionSecure  | Secure     | 14     | 1                       |   273.69 ns |  1.700 ns |  1.507 ns |   273.27 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilderSecure**          | **Secure**     | **14**     | **2**                       | **1,182.15 ns** |  **5.049 ns** |  **4.723 ns** | **1,181.70 ns** |     **?** |       **?** | **0.0191** |     **160 B** |           **?** |
+| CharArraySecure              | Secure     | 14     | 2                       | 1,168.72 ns |  5.061 ns |  4.734 ns | 1,167.37 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+| BufferSecure                 | Secure     | 14     | 2                       |    85.99 ns |  0.779 ns |  0.651 ns |    85.88 ns |     ? |       ? | 0.0181 |     152 B |           ? |
+| GetItemsSecure               | Secure     | 14     | 2                       |   207.86 ns |  1.286 ns |  1.140 ns |   207.60 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+| RejectionSampleSecure        | Secure     | 14     | 2                       |   107.01 ns |  0.864 ns |  0.808 ns |   106.91 ns |     ? |       ? | 0.0181 |     152 B |           ? |
+| GetItemsWithRejectionSecure  | Secure     | 14     | 2                       |   273.00 ns |  1.704 ns |  1.511 ns |   272.74 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilderSecure**          | **Secure**     | **24**     | **0**                       | **2,004.73 ns** |  **7.906 ns** |  **7.395 ns** | **2,005.34 ns** |     **?** |       **?** | **0.0229** |     **192 B** |           **?** |
+| CharArraySecure              | Secure     | 24     | 0                       | 2,095.69 ns | 10.514 ns |  9.834 ns | 2,095.61 ns |     ? |       ? | 0.0153 |     144 B |           ? |
+| BufferSecure                 | Secure     | 24     | 0                       |   109.34 ns |  0.995 ns |  0.831 ns |   109.36 ns |     ? |       ? | 0.0229 |     192 B |           ? |
+| GetItemsSecure               | Secure     | 24     | 0                       |   307.73 ns |  2.672 ns |  2.499 ns |   308.21 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+| RejectionSampleSecure        | Secure     | 24     | 0                       |   135.94 ns |  1.399 ns |  1.168 ns |   136.09 ns |     ? |       ? | 0.0229 |     192 B |           ? |
+| GetItemsWithRejectionSecure  | Secure     | 24     | 0                       |   407.54 ns |  3.706 ns |  3.467 ns |   405.70 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilderSecure**          | **Secure**     | **24**     | **1**                       | **2,014.45 ns** | **14.037 ns** | **13.131 ns** | **2,011.74 ns** |     **?** |       **?** | **0.0229** |     **192 B** |           **?** |
+| CharArraySecure              | Secure     | 24     | 1                       | 2,162.48 ns | 10.304 ns |  9.134 ns | 2,162.99 ns |     ? |       ? | 0.0153 |     144 B |           ? |
+| BufferSecure                 | Secure     | 24     | 1                       |   107.20 ns |  0.504 ns |  0.421 ns |   107.16 ns |     ? |       ? | 0.0229 |     192 B |           ? |
+| GetItemsSecure               | Secure     | 24     | 1                       |   305.07 ns |  2.691 ns |  2.386 ns |   304.58 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+| RejectionSampleSecure        | Secure     | 24     | 1                       |   126.57 ns |  0.917 ns |  0.766 ns |   126.66 ns |     ? |       ? | 0.0229 |     192 B |           ? |
+| GetItemsWithRejectionSecure  | Secure     | 24     | 1                       |   398.22 ns |  3.846 ns |  3.597 ns |   398.24 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilderSecure**          | **Secure**     | **24**     | **2**                       | **1,998.26 ns** |  **5.488 ns** |  **4.865 ns** | **1,998.87 ns** |     **?** |       **?** | **0.0229** |     **192 B** |           **?** |
+| CharArraySecure              | Secure     | 24     | 2                       | 1,984.91 ns |  8.071 ns |  7.550 ns | 1,985.44 ns |     ? |       ? | 0.0153 |     144 B |           ? |
+| BufferSecure                 | Secure     | 24     | 2                       |   107.91 ns |  1.708 ns |  1.598 ns |   108.41 ns |     ? |       ? | 0.0229 |     192 B |           ? |
+| GetItemsSecure               | Secure     | 24     | 2                       |   297.10 ns |  3.325 ns |  3.110 ns |   296.69 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+| RejectionSampleSecure        | Secure     | 24     | 2                       |   129.25 ns |  1.221 ns |  1.020 ns |   129.25 ns |     ? |       ? | 0.0229 |     192 B |           ? |
+| GetItemsWithRejectionSecure  | Secure     | 24     | 2                       |   400.07 ns |  2.297 ns |  2.036 ns |   400.41 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilderSecure**          | **Secure**     | **32**     | **0**                       | **2,655.31 ns** | **11.702 ns** | **10.946 ns** | **2,655.03 ns** |     **?** |       **?** | **0.0267** |     **224 B** |           **?** |
+| CharArraySecure              | Secure     | 32     | 0                       | 2,636.62 ns | 12.680 ns | 11.861 ns | 2,636.14 ns |     ? |       ? | 0.0191 |     176 B |           ? |
+| BufferSecure                 | Secure     | 32     | 0                       |   119.76 ns |  0.774 ns |  0.647 ns |   119.64 ns |     ? |       ? | 0.0277 |     232 B |           ? |
+| GetItemsSecure               | Secure     | 32     | 0                       |   365.71 ns |  3.268 ns |  2.729 ns |   366.15 ns |     ? |       ? | 0.0210 |     176 B |           ? |
+| RejectionSampleSecure        | Secure     | 32     | 0                       |   155.40 ns |  3.041 ns |  4.060 ns |   155.89 ns |     ? |       ? | 0.0277 |     232 B |           ? |
+| GetItemsWithRejectionSecure  | Secure     | 32     | 0                       |   508.58 ns |  6.724 ns |  6.289 ns |   506.93 ns |     ? |       ? | 0.0210 |     176 B |           ? |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilderSecure**          | **Secure**     | **32**     | **1**                       | **2,646.65 ns** |  **8.741 ns** |  **8.176 ns** | **2,645.78 ns** |     **?** |       **?** | **0.0267** |     **224 B** |           **?** |
+| CharArraySecure              | Secure     | 32     | 1                       | 2,638.75 ns | 10.741 ns | 10.047 ns | 2,638.00 ns |     ? |       ? | 0.0191 |     176 B |           ? |
+| BufferSecure                 | Secure     | 32     | 1                       |   120.48 ns |  1.569 ns |  1.391 ns |   120.27 ns |     ? |       ? | 0.0277 |     232 B |           ? |
+| GetItemsSecure               | Secure     | 32     | 1                       |   372.55 ns |  1.436 ns |  1.200 ns |   372.14 ns |     ? |       ? | 0.0210 |     176 B |           ? |
+| RejectionSampleSecure        | Secure     | 32     | 1                       |   150.59 ns |  3.050 ns |  5.422 ns |   152.15 ns |     ? |       ? | 0.0277 |     232 B |           ? |
+| GetItemsWithRejectionSecure  | Secure     | 32     | 1                       |   519.25 ns |  4.025 ns |  3.568 ns |   518.56 ns |     ? |       ? | 0.0210 |     176 B |           ? |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilderSecure**          | **Secure**     | **32**     | **2**                       | **2,662.23 ns** |  **9.570 ns** |  **8.484 ns** | **2,662.85 ns** |     **?** |       **?** | **0.0267** |     **224 B** |           **?** |
+| CharArraySecure              | Secure     | 32     | 2                       | 2,628.69 ns | 14.677 ns | 13.729 ns | 2,628.45 ns |     ? |       ? | 0.0191 |     176 B |           ? |
+| BufferSecure                 | Secure     | 32     | 2                       |   118.75 ns |  1.378 ns |  1.222 ns |   118.28 ns |     ? |       ? | 0.0277 |     232 B |           ? |
+| GetItemsSecure               | Secure     | 32     | 2                       |   375.85 ns |  2.829 ns |  2.647 ns |   375.38 ns |     ? |       ? | 0.0210 |     176 B |           ? |
+| RejectionSampleSecure        | Secure     | 32     | 2                       |   158.73 ns |  3.131 ns |  2.929 ns |   159.97 ns |     ? |       ? | 0.0277 |     232 B |           ? |
+| GetItemsWithRejectionSecure  | Secure     | 32     | 2                       |   502.76 ns |  4.484 ns |  3.975 ns |   501.64 ns |     ? |       ? | 0.0210 |     176 B |           ? |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilder**                | **Vulnerable** | **14**     | **0**                       |   **105.88 ns** |  **2.054 ns** |  **2.110 ns** |   **106.44 ns** |     **?** |       **?** | **0.0191** |     **160 B** |           **?** |
+| CharArray                    | Vulnerable | 14     | 0                       |    66.86 ns |  0.255 ns |  0.199 ns |    66.81 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+| Buffer                       | Vulnerable | 14     | 0                       |    33.90 ns |  0.537 ns |  0.476 ns |    33.92 ns |     ? |       ? | 0.0181 |     152 B |           ? |
+| GetItems                     | Vulnerable | 14     | 0                       |   125.21 ns |  2.036 ns |  1.700 ns |   124.41 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+| RejectionSample              | Vulnerable | 14     | 0                       |    37.23 ns |  0.752 ns |  0.667 ns |    37.16 ns |     ? |       ? | 0.0181 |     152 B |           ? |
+| GetItemsWithRejection        | Vulnerable | 14     | 0                       |   185.37 ns |  0.754 ns |  0.629 ns |   185.14 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilder**                | **Vulnerable** | **14**     | **1**                       |   **115.55 ns** |  **2.366 ns** |  **4.143 ns** |   **115.95 ns** |     **?** |       **?** | **0.0191** |     **160 B** |           **?** |
+| CharArray                    | Vulnerable | 14     | 1                       |    67.54 ns |  0.454 ns |  0.379 ns |    67.37 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+| Buffer                       | Vulnerable | 14     | 1                       |    33.54 ns |  0.375 ns |  0.292 ns |    33.60 ns |     ? |       ? | 0.0181 |     152 B |           ? |
+| GetItems                     | Vulnerable | 14     | 1                       |   124.79 ns |  1.638 ns |  1.452 ns |   124.10 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+| RejectionSample              | Vulnerable | 14     | 1                       |    37.10 ns |  0.680 ns |  0.568 ns |    37.13 ns |     ? |       ? | 0.0181 |     152 B |           ? |
+| GetItemsWithRejection        | Vulnerable | 14     | 1                       |   191.19 ns |  1.322 ns |  1.104 ns |   190.94 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilder**                | **Vulnerable** | **14**     | **2**                       |   **107.24 ns** |  **4.792 ns** | **14.130 ns** |   **114.37 ns** |     **?** |       **?** | **0.0191** |     **160 B** |           **?** |
+| CharArray                    | Vulnerable | 14     | 2                       |    67.46 ns |  0.412 ns |  0.321 ns |    67.46 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+| Buffer                       | Vulnerable | 14     | 2                       |    39.53 ns |  0.729 ns |  0.646 ns |    39.45 ns |     ? |       ? | 0.0181 |     152 B |           ? |
+| GetItems                     | Vulnerable | 14     | 2                       |   126.21 ns |  0.832 ns |  0.695 ns |   125.99 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+| RejectionSample              | Vulnerable | 14     | 2                       |    48.38 ns |  0.738 ns |  0.616 ns |    48.41 ns |     ? |       ? | 0.0181 |     152 B |           ? |
+| GetItemsWithRejection        | Vulnerable | 14     | 2                       |   191.95 ns |  1.852 ns |  1.733 ns |   191.02 ns |     ? |       ? | 0.0134 |     112 B |           ? |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilder**                | **Vulnerable** | **24**     | **0**                       |   **154.97 ns** |  **5.280 ns** | **15.568 ns** |   **158.79 ns** |     **?** |       **?** | **0.0229** |     **192 B** |           **?** |
+| CharArray                    | Vulnerable | 24     | 0                       |   109.65 ns |  1.099 ns |  1.028 ns |   109.27 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+| Buffer                       | Vulnerable | 24     | 0                       |    38.39 ns |  0.497 ns |  0.441 ns |    38.25 ns |     ? |       ? | 0.0229 |     192 B |           ? |
+| GetItems                     | Vulnerable | 24     | 0                       |   190.83 ns |  1.065 ns |  0.889 ns |   190.96 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+| RejectionSample              | Vulnerable | 24     | 0                       |    44.12 ns |  0.266 ns |  0.222 ns |    44.11 ns |     ? |       ? | 0.0229 |     192 B |           ? |
+| GetItemsWithRejection        | Vulnerable | 24     | 0                       |   288.47 ns |  1.063 ns |  0.887 ns |   288.22 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilder**                | **Vulnerable** | **24**     | **1**                       |   **165.04 ns** |  **8.625 ns** | **25.430 ns** |   **167.43 ns** |     **?** |       **?** | **0.0229** |     **192 B** |           **?** |
+| CharArray                    | Vulnerable | 24     | 1                       |   109.75 ns |  1.079 ns |  1.010 ns |   109.58 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+| Buffer                       | Vulnerable | 24     | 1                       |    37.65 ns |  0.562 ns |  0.526 ns |    37.45 ns |     ? |       ? | 0.0229 |     192 B |           ? |
+| GetItems                     | Vulnerable | 24     | 1                       |   186.87 ns |  0.617 ns |  0.515 ns |   186.79 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+| RejectionSample              | Vulnerable | 24     | 1                       |    44.95 ns |  0.734 ns |  0.687 ns |    44.55 ns |     ? |       ? | 0.0229 |     192 B |           ? |
+| GetItemsWithRejection        | Vulnerable | 24     | 1                       |   295.83 ns |  0.716 ns |  0.598 ns |   295.83 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilder**                | **Vulnerable** | **24**     | **2**                       |   **186.45 ns** |  **4.239 ns** | **12.498 ns** |   **192.00 ns** |     **?** |       **?** | **0.0229** |     **192 B** |           **?** |
+| CharArray                    | Vulnerable | 24     | 2                       |   109.88 ns |  1.283 ns |  1.200 ns |   109.57 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+| Buffer                       | Vulnerable | 24     | 2                       |    37.36 ns |  0.416 ns |  0.389 ns |    37.29 ns |     ? |       ? | 0.0229 |     192 B |           ? |
+| GetItems                     | Vulnerable | 24     | 2                       |   186.88 ns |  1.160 ns |  0.969 ns |   186.67 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+| RejectionSample              | Vulnerable | 24     | 2                       |    55.66 ns |  0.270 ns |  0.226 ns |    55.55 ns |     ? |       ? | 0.0229 |     192 B |           ? |
+| GetItemsWithRejection        | Vulnerable | 24     | 2                       |   298.51 ns |  3.398 ns |  3.178 ns |   297.98 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilder**                | **Vulnerable** | **32**     | **0**                       |   **202.36 ns** |  **4.108 ns** |  **9.842 ns** |   **199.72 ns** |     **?** |       **?** | **0.0267** |     **224 B** |           **?** |
+| CharArray                    | Vulnerable | 32     | 0                       |   145.02 ns |  1.463 ns |  1.297 ns |   145.01 ns |     ? |       ? | 0.0210 |     176 B |           ? |
+| Buffer                       | Vulnerable | 32     | 0                       |    45.50 ns |  0.296 ns |  0.247 ns |    45.47 ns |     ? |       ? | 0.0277 |     232 B |           ? |
+| GetItems                     | Vulnerable | 32     | 0                       |   244.56 ns |  0.914 ns |  0.714 ns |   244.59 ns |     ? |       ? | 0.0210 |     176 B |           ? |
+| RejectionSample              | Vulnerable | 32     | 0                       |    53.27 ns |  0.671 ns |  0.628 ns |    53.02 ns |     ? |       ? | 0.0277 |     232 B |           ? |
+| GetItemsWithRejection        | Vulnerable | 32     | 0                       |   376.33 ns |  3.191 ns |  2.985 ns |   375.26 ns |     ? |       ? | 0.0210 |     176 B |           ? |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilder**                | **Vulnerable** | **32**     | **1**                       |   **245.84 ns** |  **4.515 ns** |  **5.018 ns** |   **244.83 ns** |     **?** |       **?** | **0.0267** |     **224 B** |           **?** |
+| CharArray                    | Vulnerable | 32     | 1                       |   143.42 ns |  0.521 ns |  0.435 ns |   143.37 ns |     ? |       ? | 0.0210 |     176 B |           ? |
+| Buffer                       | Vulnerable | 32     | 1                       |    44.52 ns |  0.568 ns |  0.531 ns |    44.40 ns |     ? |       ? | 0.0277 |     232 B |           ? |
+| GetItems                     | Vulnerable | 32     | 1                       |   239.76 ns |  1.815 ns |  1.609 ns |   239.65 ns |     ? |       ? | 0.0210 |     176 B |           ? |
+| RejectionSample              | Vulnerable | 32     | 1                       |    53.29 ns |  0.788 ns |  0.737 ns |    53.00 ns |     ? |       ? | 0.0277 |     232 B |           ? |
+| GetItemsWithRejection        | Vulnerable | 32     | 1                       |   376.41 ns |  2.455 ns |  2.297 ns |   376.25 ns |     ? |       ? | 0.0210 |     176 B |           ? |
+|                              |            |        |                         |             |           |           |             |       |         |        |           |             |
+| **StringBuilder**                | **Vulnerable** | **32**     | **2**                       |   **249.48 ns** |  **5.002 ns** | **11.083 ns** |   **252.35 ns** |     **?** |       **?** | **0.0267** |     **224 B** |           **?** |
+| CharArray                    | Vulnerable | 32     | 2                       |   141.39 ns |  1.406 ns |  1.174 ns |   140.95 ns |     ? |       ? | 0.0210 |     176 B |           ? |
+| Buffer                       | Vulnerable | 32     | 2                       |    44.48 ns |  0.619 ns |  0.579 ns |    44.22 ns |     ? |       ? | 0.0277 |     232 B |           ? |
+| GetItems                     | Vulnerable | 32     | 2                       |   242.01 ns |  1.820 ns |  1.520 ns |   242.25 ns |     ? |       ? | 0.0210 |     176 B |           ? |
+| RejectionSample              | Vulnerable | 32     | 2                       |    65.83 ns |  1.032 ns |  0.862 ns |    65.81 ns |     ? |       ? | 0.0277 |     232 B |           ? |
+| GetItemsWithRejection        | Vulnerable | 32     | 2                       |   363.38 ns |  1.851 ns |  1.546 ns |   363.12 ns |     ? |       ? | 0.0210 |     176 B |           ? |
+
+</details>
