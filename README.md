@@ -24,16 +24,18 @@ public string GeneratePassword(int length)
 
 ```
 
-It surprised me, because it's in the perfect spot of being good enough to get through most some reviews It'd likely get a few remarks if reviewed as a standalone feature. It might well get through if bundled as part of 20 files in a wider feature. ( This is a benefit of small commits, but that's a post for another day. )  I'm tempted to use this code, and asking for a review of it, as an interview piece.
+It surprised me, because it's in the perfect spot of being just about good enough to get through some reviews. It would certainly get a few remarks if reviewed as a standalone feature, but it could sneak through if bundled as part of 20 files in a wider feature. This is a benefit of small commits, but that's a post for another day.
 
 Yet it's also bad code. There are to me, three main concerns:
 
-* Performance - The instantiation of `new System.Random()` each call rather than `System.Random.Shared` and string concatenation rather than `StringBuilder` are two things in particular that stand out.
-* Security - Using `System.Random` instead of a crypto-secure generator such as `System.Security.Cryptography.RandomNumberGenerator` is something that could be cause for concern.
-* Lack of features - It's desirable for passwords to always have at least one symbol to pass most validation sets. With this password generator, you'd be fine most of the time then occassionally be frustrated when it generates a password without symbols ( 5% of the time for a 16 character password ).
+* Performance - The use of `new System.Random()` within the method rather than using `System.Random.Shared`, and string concatenation rather than `StringBuilder`, are two things in particular that stand out as quick wins for performance.
+* Security - Using `System.Random` instead of a cryptographically secure generator such as `System.Security.Cryptography.RandomNumberGenerator` is a concern for a password generator.
+* Lack of checking output for symbols - It's desirable for passwords to always have at least one symbol to pass most validation sets. With this password generator, you'd be fine most of the time given the input set, but then occassionally be frustrated when it generates a password without symbols. This would happen around 5% of the time for a 16 character password. Just often enough to get missed in testing then hit you later.
+
+I'm tempted to use this code if I have to perform interviews; I think asking for a review of it would let someone demonstrate their attitudes and abilities.
 
 ## Improving Security
-Let's address Security first, it's no good having something fast if you can't trust it.
+Let's address security first, it's no good having a password generator be fast if you can't trust the output.
 
 ```csharp
 public string SecureRandom(int length)
@@ -53,11 +55,11 @@ I've kept the same naive implementation, but swapped `random.Next()` for the sta
 
 
 ## Benchmarking and performance optimisation
-Let's get this under the Benchmark microscope to see how we can address performance.
+Let's get this under the benchmark microscope to see how we can address performance.
 
 Measuring baseline performance is easy with [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet), we just create a class and then annotate it. 
 
-I've gone with 3 different lengths of passwords, so we can see the effect of increasing password length on generation, and also used two separate categories so we can compare our optimisation efforts on both the secure and vulnerable versions of the password generator.
+I've gone with 3 different lengths of passwords, so that we can see the effect of increasing password length on generation, and also used two separate categories so we can compare our optimisation efforts on both the secure and vulnerable versions of the password generator.
 
 
 ```csharp
