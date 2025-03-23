@@ -291,19 +291,16 @@ private const string charactersShortSet = "abcdefghjkmnpqrstuwxyzABCDEFGHJKLMNPQ
 Now we have a character set that won't introduce bias, let's add a function that gets all the bytes at once from our Random sources:
 
 ```csharp
-public string Buffer(int length)
+public string Buffer()
 {
-
-    string characters = "abcdefghjkmnpqrstuwxyzABCDEFGHJKLMNPQRSTVWXYZ0123456789@#$%&()_+";
-
-    byte[] bytebuffer = new byte[length];
+    byte[] bytebuffer = new byte[Length];
     Random.Shared.NextBytes(bytebuffer);
 
-    char[] buffer = new char[length];
+    char[] buffer = new char[Length];
 
-    for (int i = 0; i < length; i++)
+    for (int i = 0; i < Length; i++)
     {
-        buffer[i] = characters[bytebuffer[i] % 64];
+        buffer[i] = charactersShortSet[bytebuffer[i] % 64];
     }
 
     return new(buffer);
