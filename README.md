@@ -514,6 +514,9 @@ public string GetItemsWithRejectionSecure()
 ```
 For this solution we have had to enumerate the array again for the `GetItems` approach, which we expect to further worsen it's performance relative to the 64 character set approach, so let's see the results:
 
+<details>
+<summary>Example5.cs</summary>
+
 | Method                      | Categories | MinmumSpecialCharacters | Length | Mean        | Error     | StdDev    | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
 |---------------------------- |----------- |------------------------ |------- |------------:|----------:|----------:|------:|--------:|-------:|----------:|------------:|
 | **SecureRandom**                | **Secure**     | **0**                       | **14**     | **1,280.72 ns** | **11.152 ns** | **10.432 ns** |  **1.00** |    **0.01** | **0.0668** |     **560 B** |        **1.00** |
@@ -588,12 +591,16 @@ For this solution we have had to enumerate the array again for the `GetItems` ap
 | RejectionSample             | Vulnerable | 2                       | 32     |    61.80 ns |  1.081 ns |  0.958 ns |  0.16 |    0.00 | 0.0277 |     232 B |        0.12 |
 | GetItemsWithRejection       | Vulnerable | 2                       | 32     |   385.51 ns |  3.140 ns |  2.937 ns |  1.00 |    0.02 | 0.0210 |     178 B |        0.09 |
 
+</details>
 
 As expected, this has added overhead, particularly `GetItemsWithRejection`, which is left in a strange spot of being neither secure, nor particularly fast. If security is not an issue, then `RejectionSample` still performs decently well. If security is desired, then there is a choice between `RejectionSampleSecure` with it's slightly reduced entropy per output character, and `GetItemsWithRejectionSecure`.
 
 We can try to speed up the `GetItems` based methods by using a loop to count the special characters, so we can exit early when we've met our target rather than counting all special characters.
 
 Finally, we can try to avoid a heap allocation by using `stackalloc` to allocate the span on the stack.
+
+<details>
+<summary>Example6.cs</summary>
 
 | Method                      | Categories | MinmumSpecialCharacters | Length | Mean       | Error    | StdDev   | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
 |---------------------------- |----------- |------------------------ |------- |-----------:|---------:|---------:|------:|--------:|-------:|----------:|------------:|
@@ -686,6 +693,8 @@ Finally, we can try to avoid a heap allocation by using `stackalloc` to allocate
 | GetItemsWithRejection       | Vulnerable | 2                       | 32     |   385.3 ns |  3.45 ns |  3.23 ns |  1.03 |    0.01 | 0.0210 |     178 B |        0.09 |
 | SpecialLoop                 | Vulnerable | 2                       | 32     |   279.0 ns |  2.41 ns |  2.14 ns |  0.74 |    0.01 | 0.0210 |     176 B |        0.09 |
 | StackAlloc                  | Vulnerable | 2                       | 32     |   272.8 ns |  2.34 ns |  2.19 ns |  0.73 |    0.01 | 0.0105 |      88 B |        0.05 |
+
+</details>
 
 Checking in a loop has significantly reduced the overhead of counting special characters. Stack allocation has shaved 1-2ns off the time too, but perhaps more importantly, has halved the heap usage.
 
