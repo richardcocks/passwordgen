@@ -342,55 +342,42 @@ We've sacrificed some generation strength to achieve this, can we maintain this 
 That sounds exactly like what we're after. There's also `Random.Shared.GetItems<T>`, let's implement them, going back to our original 74 character set. This leaves our methods as:
 
 ```csharp
-        [BenchmarkCategory("Vulnerable"), Benchmark()]
-        [Arguments(14)]
-        [Arguments(24)]
-        [Arguments(32)]
-        public string GetItems(int length)
-        {
+[BenchmarkCategory("Vulnerable"), Benchmark()]
+public string GetItems()
+{
+    char[] buffer = Random.Shared.GetItems<char>(characters, Length);
+    return new(buffer);
+}
 
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-
-            char[] buffer = Random.Shared.GetItems<char>(characters, length);
-
-            return new(buffer);
-        }
-
-        [BenchmarkCategory("Secure"), Benchmark()]
-        [Arguments(14)]
-        [Arguments(24)]
-        [Arguments(32)]
-        public string GetItemsSecure(int length)
-        {
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-
-            char[] buffer = RandomNumberGenerator.GetItems<char>(characters, length);
-
-            return new(buffer);
-        }
+[BenchmarkCategory("Secure"), Benchmark()]
+public string GetItemsSecure()
+{
+    char[] buffer = RandomNumberGenerator.GetItems<char>(characters, Length);
+    return new(buffer);
+}
 ```
 
 That's definitely a lot neater code than the original, let's see how it performs:
 
-| Method           | Categories | length | Mean       | Error    | StdDev   | Ratio | Gen0   | Allocated | Alloc Ratio |
-|----------------- |----------- |------- |-----------:|---------:|---------:|------:|-------:|----------:|------------:|
-| **SecureRandom**     | **Secure**     | **14**     | **1,356.2 ns** |  **8.22 ns** |  **7.29 ns** |  **1.00** | **0.0668** |     **560 B** |        **1.00** |
-| GetItemsSecure   | Secure     | 14     |   221.3 ns |  2.16 ns |  1.91 ns |  0.16 | 0.0134 |     112 B |        0.20 |
-|                  |            |        |            |          |          |       |        |           |             |
-| **SecureRandom**     | **Secure**     | **24**     | **2,366.2 ns** | **14.16 ns** | **13.25 ns** |  **1.00** | **0.1411** |    **1200 B** |        **1.00** |
-| GetItemsSecure   | Secure     | 24     |   302.3 ns |  4.28 ns |  4.01 ns |  0.13 | 0.0172 |     144 B |        0.12 |
-|                  |            |        |            |          |          |       |        |           |             |
-| **SecureRandom**     | **Secure**     | **32**     | **3,127.6 ns** | **19.27 ns** | **18.02 ns** |  **1.00** | **0.2213** |    **1856 B** |        **1.00** |
-| GetItemsSecure   | Secure     | 32     |   369.0 ns |  3.69 ns |  3.45 ns |  0.12 | 0.0210 |     176 B |        0.09 |
-|                  |            |        |            |          |          |       |        |           |             |
-| **GeneratePassword** | **Vulnerable** | **14**     |   **208.1 ns** |  **2.20 ns** |  **1.84 ns** |  **1.00** | **0.0753** |     **632 B** |        **1.00** |
-| GetItems         | Vulnerable | 14     |   130.7 ns |  0.80 ns |  0.67 ns |  0.63 | 0.0134 |     112 B |        0.18 |
-|                  |            |        |            |          |          |       |        |           |             |
-| **GeneratePassword** | **Vulnerable** | **24**     |   **296.6 ns** |  **3.71 ns** |  **3.10 ns** |  **1.00** | **0.1516** |    **1272 B** |        **1.00** |
-| GetItems         | Vulnerable | 24     |   190.6 ns |  1.20 ns |  1.00 ns |  0.64 | 0.0172 |     144 B |        0.11 |
-|                  |            |        |            |          |          |       |        |           |             |
-| **GeneratePassword** | **Vulnerable** | **32**     |   **363.8 ns** |  **3.85 ns** |  **3.41 ns** |  **1.00** | **0.2303** |    **1928 B** |        **1.00** |
-| GetItems         | Vulnerable | 32     |   240.8 ns |  1.46 ns |  1.14 ns |  0.66 | 0.0210 |     176 B |        0.09 |
+| Method           | Categories | Length | Mean       | Error    | StdDev   | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
+|----------------- |----------- |------- |-----------:|---------:|---------:|------:|--------:|-------:|----------:|------------:|
+| **SecureRandom**     | **Secure**     | **14**     | **1,375.0 ns** |  **8.36 ns** |  **7.41 ns** |  **1.00** |    **0.01** | **0.0668** |     **560 B** |        **1.00** |
+| GetItemsSecure   | Secure     | 14     |   208.9 ns |  1.95 ns |  1.73 ns |  0.15 |    0.00 | 0.0134 |     112 B |        0.20 |
+|                  |            |        |            |          |          |       |         |        |           |             |
+| **SecureRandom**     | **Secure**     | **24**     | **2,405.9 ns** | **32.45 ns** | **30.35 ns** |  **1.00** |    **0.02** | **0.1411** |    **1200 B** |        **1.00** |
+| GetItemsSecure   | Secure     | 24     |   302.6 ns |  1.86 ns |  1.55 ns |  0.13 |    0.00 | 0.0172 |     144 B |        0.12 |
+|                  |            |        |            |          |          |       |         |        |           |             |
+| **SecureRandom**     | **Secure**     | **32**     | **3,184.5 ns** | **22.23 ns** | **19.71 ns** |  **1.00** |    **0.01** | **0.2213** |    **1856 B** |        **1.00** |
+| GetItemsSecure   | Secure     | 32     |   369.4 ns |  3.19 ns |  2.49 ns |  0.12 |    0.00 | 0.0210 |     176 B |        0.09 |
+|                  |            |        |            |          |          |       |         |        |           |             |
+| **GeneratePassword** | **Vulnerable** | **14**     |   **217.4 ns** |  **2.64 ns** |  **2.34 ns** |  **1.00** |    **0.01** | **0.0753** |     **632 B** |        **1.00** |
+| GetItems         | Vulnerable | 14     |   125.0 ns |  1.46 ns |  1.30 ns |  0.57 |    0.01 | 0.0134 |     112 B |        0.18 |
+|                  |            |        |            |          |          |       |         |        |           |             |
+| **GeneratePassword** | **Vulnerable** | **24**     |   **309.8 ns** |  **4.09 ns** |  **3.63 ns** |  **1.00** |    **0.02** | **0.1516** |    **1272 B** |        **1.00** |
+| GetItems         | Vulnerable | 24     |   187.3 ns |  1.67 ns |  1.48 ns |  0.60 |    0.01 | 0.0172 |     144 B |        0.11 |
+|                  |            |        |            |          |          |       |         |        |           |             |
+| **GeneratePassword** | **Vulnerable** | **32**     |   **383.6 ns** |  **5.39 ns** |  **4.50 ns** |  **1.00** |    **0.02** | **0.2303** |    **1928 B** |        **1.00** |
+| GetItems         | Vulnerable | 32     |   243.7 ns |  2.80 ns |  2.62 ns |  0.64 |    0.01 | 0.0210 |     176 B |        0.09 |
 
 Right, so that's a bit of a performance regression, so we'd need to understand the trade-offs of using the full character set vs the reduced character set with better performance.
 

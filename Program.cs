@@ -13,6 +13,6 @@ BenchmarkRunner.Run<Example5>();
 BenchmarkRunner.Run<Example6>();
 */
 
-BenchmarkRunner.Run<Example3>();
+BenchmarkRunner.Run<Example4>();
 
 // BenchmarkRunner.Run<PasswordGenerator>();

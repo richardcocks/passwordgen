@@ -10,17 +10,18 @@ namespace PasswordGen
     public class Example4
     {
 
+        private const string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+
+        [Params(14, 24, 32)]
+        public int Length { get; set; }
+
         [BenchmarkCategory("Vulnerable"), Benchmark(Baseline = true)]
-        [Arguments(14)]
-        [Arguments(24)]
-        [Arguments(32)]
-        public string GeneratePassword(int length)
+        public string GeneratePassword()
         {
             string password = "";
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
             System.Random random = new System.Random();
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < Length; i++)
             {
                 password += characters[random.Next(characters.Length)];
             }
@@ -28,15 +29,11 @@ namespace PasswordGen
         }
 
         [BenchmarkCategory("Secure"), Benchmark(Baseline = true)]
-        [Arguments(14)]
-        [Arguments(24)]
-        [Arguments(32)]
-        public string SecureRandom(int length)
+        public string SecureRandom()
         {
             string password = "";
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < Length; i++)
             {
                 password += characters[RandomNumberGenerator.GetInt32(characters.Length)];
             }
@@ -44,29 +41,16 @@ namespace PasswordGen
         }
 
         [BenchmarkCategory("Vulnerable"), Benchmark()]
-        [Arguments(14)]
-        [Arguments(24)]
-        [Arguments(32)]
-        public string GetItems(int length)
+        public string GetItems()
         {
-
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-
-            char[] buffer = Random.Shared.GetItems<char>(characters, length);
-
+            char[] buffer = Random.Shared.GetItems<char>(characters, Length);
             return new(buffer);
         }
 
         [BenchmarkCategory("Secure"), Benchmark()]
-        [Arguments(14)]
-        [Arguments(24)]
-        [Arguments(32)]
-        public string GetItemsSecure(int length)
+        public string GetItemsSecure()
         {
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-
-            char[] buffer = RandomNumberGenerator.GetItems<char>(characters, length);
-
+            char[] buffer = RandomNumberGenerator.GetItems<char>(characters, Length);
             return new(buffer);
         }
 
