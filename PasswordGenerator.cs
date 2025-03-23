@@ -8,7 +8,6 @@ namespace PasswordGen
     [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
     [CategoriesColumn]
     [MemoryDiagnoser]
-    [RPlotExporter]
     public class PasswordGenerator
     {
         [Params(14, 24, 32)]
