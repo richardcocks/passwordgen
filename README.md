@@ -429,9 +429,7 @@ So that approach is out. The fairer way to do this is to generate a password, th
 
 In the case where we're first generating `byte[]` with our character set, we've arranged our character set so we can cheaply determine if there is a special character. We just have to look at the value of the byte pre-lookup to see if it is `55` or higher, since `55` to `63` are all special characters.
 
-For the case where we're using `GetItems`, we have to reverse it, and check `char.IsAsciiLetterOrDigit`.
-
-We can then compare that count against the requested minimum symbols.
+For the case where we're using `GetItems`, we have to count `char.IsAsciiLetterOrDigit` and take that from our password length, then compare that count against the requested minimum symbols.
 
 ```csharp
 [BenchmarkCategory("Vulnerable"), Benchmark()]
@@ -481,7 +479,7 @@ public string GetItemsWithRejectionSecure(int length, int minmumSpecialCharacter
     {
         char[] buffer = RandomNumberGenerator.GetItems<char>(characters, length);
 
-        if (buffer.Count(char.IsAsciiLetterOrDigit) >= minmumSpecialCharacters)
+        if ((buffer.Length - buffer.Count(char.IsAsciiLetterOrDigit)) >= minmumSpecialCharacters)
         {
             return new(buffer);
         }
@@ -492,30 +490,66 @@ With an extra parameter, we've relaxed the parameterisation of the first paramet
 
 For this solution we have had to enumerate the array again for the `GetItems` approach, which we expect to further worsen it's performance relative to the 64 character set approach, so let's see the results:
 
-| Method                      | Categories | length | minmumSpecialCharacters | Mean        | Error     | StdDev    | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
-|---------------------------- |----------- |------- |------------------------ |------------:|----------:|----------:|------:|--------:|-------:|----------:|------------:|
-| **SecureRandom**                | **Secure**     | **24**     | **0**                       | **2,224.96 ns** | **44.133 ns** | **57.385 ns** |  **1.00** |    **0.04** | **0.1411** |    **1200 B** |        **1.00** |
-| RejectionSampleSecure       | Secure     | 24     | 0                       |   113.87 ns |  1.276 ns |  1.131 ns |  0.05 |    0.00 | 0.0229 |     192 B |        0.16 |
-| GetItemsWithRejectionSecure | Secure     | 24     | 0                       |   405.26 ns |  2.494 ns |  2.210 ns |  0.18 |    0.00 | 0.0172 |     144 B |        0.12 |
-|                             |            |        |                         |             |           |           |       |         |        |           |             |
-| **RejectionSampleSecure**       | **Secure**     | **24**     | **1**                       |   **112.52 ns** |  **0.778 ns** |  **0.607 ns** |     **?** |       **?** | **0.0229** |     **192 B** |           **?** |
-| GetItemsWithRejectionSecure | Secure     | 24     | 1                       |   401.92 ns |  2.537 ns |  2.249 ns |     ? |       ? | 0.0172 |     145 B |           ? |
-|                             |            |        |                         |             |           |           |       |         |        |           |             |
-| **RejectionSampleSecure**       | **Secure**     | **24**     | **2**                       |   **112.54 ns** |  **0.645 ns** |  **0.538 ns** |     **?** |       **?** | **0.0229** |     **192 B** |           **?** |
-| GetItemsWithRejectionSecure | Secure     | 24     | 2                       |   438.95 ns |  5.473 ns |  5.119 ns |     ? |       ? | 0.0176 |     150 B |           ? |
-|                             |            |        |                         |             |           |           |       |         |        |           |             |
-| **GeneratePassword**            | **Vulnerable** | **24**     | **0**                       |   **306.60 ns** |  **5.643 ns** |  **4.712 ns** |  **1.00** |    **0.02** | **0.1516** |    **1272 B** |        **1.00** |
-| RejectionSample             | Vulnerable | 24     | 0                       |    38.98 ns |  0.574 ns |  0.537 ns |  0.13 |    0.00 | 0.0229 |     192 B |        0.15 |
-| GetItemsWithRejection       | Vulnerable | 24     | 0                       |   288.80 ns |  2.138 ns |  2.000 ns |  0.94 |    0.02 | 0.0172 |     144 B |        0.11 |
-|                             |            |        |                         |             |           |           |       |         |        |           |             |
-| **RejectionSample**             | **Vulnerable** | **24**     | **1**                       |    **38.48 ns** |  **0.374 ns** |  **0.313 ns** |     **?** |       **?** | **0.0229** |     **192 B** |           **?** |
-| GetItemsWithRejection       | Vulnerable | 24     | 1                       |   295.44 ns |  1.359 ns |  1.135 ns |     ? |       ? | 0.0172 |     145 B |           ? |
-|                             |            |        |                         |             |           |           |       |         |        |           |             |
-| **RejectionSample**             | **Vulnerable** | **24**     | **2**                       |    **44.89 ns** |  **0.566 ns** |  **0.530 ns** |     **?** |       **?** | **0.0229** |     **192 B** |           **?** |
-| GetItemsWithRejection       | Vulnerable | 24     | 2                       |   311.52 ns |  1.108 ns |  0.865 ns |     ? |       ? | 0.0176 |     150 B |           ? |
+| Method                      | Categories | length | minmumSpecialCharacters | Mean        | Error    | StdDev   | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
+|---------------------------- |----------- |------- |------------------------ |------------:|---------:|---------:|------:|--------:|-------:|----------:|------------:|
+| **SecureRandom**                | **Secure**     | **24**     | **0**                       | **2,385.76 ns** | **7.992 ns** | **6.674 ns** |  **1.00** |    **0.00** | **0.1411** |    **1200 B** |        **1.00** |
+| RejectionSampleSecure       | Secure     | 24     | 0                       |   112.46 ns | 1.547 ns | 1.447 ns |  0.05 |    0.00 | 0.0229 |     192 B |        0.16 |
+| GetItemsWithRejectionSecure | Secure     | 24     | 0                       |   407.81 ns | 3.559 ns | 3.155 ns |  0.17 |    0.00 | 0.0172 |     144 B |        0.12 |
+|                             |            |        |                         |             |          |          |       |         |        |           |             |
+| **RejectionSampleSecure**       | **Secure**     | **24**     | **1**                       |   **113.10 ns** | **1.644 ns** | **1.538 ns** |     **?** |       **?** | **0.0229** |     **192 B** |           **?** |
+| GetItemsWithRejectionSecure | Secure     | 24     | 1                       |   404.39 ns | 3.120 ns | 2.918 ns |     ? |       ? | 0.0172 |     145 B |           ? |
+|                             |            |        |                         |             |          |          |       |         |        |           |             |
+| **RejectionSampleSecure**       | **Secure**     | **24**     | **2**                       |   **115.07 ns** | **0.368 ns** | **0.287 ns** |     **?** |       **?** | **0.0229** |     **192 B** |           **?** |
+| GetItemsWithRejectionSecure | Secure     | 24     | 2                       |   442.09 ns | 2.638 ns | 2.338 ns |     ? |       ? | 0.0176 |     150 B |           ? |
+|                             |            |        |                         |             |          |          |       |         |        |           |             |
+| **GeneratePassword**            | **Vulnerable** | **24**     | **0**                       |   **300.58 ns** | **3.271 ns** | **2.732 ns** |  **1.00** |    **0.01** | **0.1516** |    **1272 B** |        **1.00** |
+| RejectionSample             | Vulnerable | 24     | 0                       |    54.66 ns | 0.760 ns | 0.711 ns |  0.18 |    0.00 | 0.0229 |     192 B |        0.15 |
+| GetItemsWithRejection       | Vulnerable | 24     | 0                       |   290.15 ns | 2.151 ns | 1.906 ns |  0.97 |    0.01 | 0.0172 |     144 B |        0.11 |
+|                             |            |        |                         |             |          |          |       |         |        |           |             |
+| **RejectionSample**             | **Vulnerable** | **24**     | **1**                       |    **38.47 ns** | **0.190 ns** | **0.148 ns** |     **?** |       **?** | **0.0229** |     **192 B** |           **?** |
+| GetItemsWithRejection       | Vulnerable | 24     | 1                       |   289.28 ns | 0.636 ns | 0.497 ns |     ? |       ? | 0.0172 |     145 B |           ? |
+|                             |            |        |                         |             |          |          |       |         |        |           |             |
+| **RejectionSample**             | **Vulnerable** | **24**     | **2**                       |    **44.44 ns** | **0.422 ns** | **0.394 ns** |     **?** |       **?** | **0.0229** |     **192 B** |           **?** |
+| GetItemsWithRejection       | Vulnerable | 24     | 2                       |   320.36 ns | 2.607 ns | 2.439 ns |     ? |       ? | 0.0176 |     150 B |           ? |
 
 
-As expected, this has added overhead, particularly `GetItemsWithRejection`, which is neither secure, nor particularly fast. If security is not an issue, then `RejectionSample` still performs decently well. If security is desired, then there is a choice between `RejectionSampleSecure` with it's slightly reduced entropy per output character, and `GetItemsWithRejectionSecure`.
+As expected, this has added overhead, particularly `GetItemsWithRejection`, which is left in a strange spot of being neither secure, nor particularly fast. If security is not an issue, then `RejectionSample` still performs decently well. If security is desired, then there is a choice between `RejectionSampleSecure` with it's slightly reduced entropy per output character, and `GetItemsWithRejectionSecure`.
+
+We can try to speed up the `GetItems` based methods by using a loop to count the special characters, so we can exit early when we've met our target rather than counting all special characters.
+
+Finally, we can try to avoid a heap allocation by using `stackalloc` to allocate the span on the stack.
+
+| Method                      | Categories | length | minmumSpecialCharacters | Mean       | Error    | StdDev   | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
+|---------------------------- |----------- |------- |------------------------ |-----------:|---------:|---------:|------:|--------:|-------:|----------:|------------:|
+| **SecureRandom**                | **Secure**     | **24**     | **0**                       | **2,376.9 ns** | **20.84 ns** | **19.49 ns** |  **1.00** |    **0.01** | **0.1411** |    **1200 B** |        **1.00** |
+| GetItemsWithRejectionSecure | Secure     | 24     | 0                       |   397.5 ns |  2.25 ns |  1.88 ns |  0.17 |    0.00 | 0.0172 |     144 B |        0.12 |
+| SpecialLoopSecure           | Secure     | 24     | 0                       |   320.2 ns |  1.59 ns |  1.33 ns |  0.13 |    0.00 | 0.0172 |     144 B |        0.12 |
+| StackAllocSecure            | Secure     | 24     | 0                       |   321.1 ns |  1.52 ns |  1.27 ns |  0.14 |    0.00 | 0.0086 |      72 B |        0.06 |
+|                             |            |        |                         |            |          |          |       |         |        |           |             |
+| **GetItemsWithRejectionSecure** | **Secure**     | **24**     | **1**                       |   **409.0 ns** |  **2.60 ns** |  **2.44 ns** |     **?** |       **?** | **0.0172** |     **145 B** |           **?** |
+| SpecialLoopSecure           | Secure     | 24     | 1                       |   321.4 ns |  2.31 ns |  2.16 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+| StackAllocSecure            | Secure     | 24     | 1                       |   321.4 ns |  1.97 ns |  1.74 ns |     ? |       ? | 0.0086 |      72 B |           ? |
+|                             |            |        |                         |            |          |          |       |         |        |           |             |
+| **GetItemsWithRejectionSecure** | **Secure**     | **24**     | **2**                       |   **436.2 ns** |  **5.01 ns** |  **4.68 ns** |     **?** |       **?** | **0.0176** |     **150 B** |           **?** |
+| SpecialLoopSecure           | Secure     | 24     | 2                       |   360.9 ns |  3.98 ns |  3.72 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+| StackAllocSecure            | Secure     | 24     | 2                       |   357.4 ns |  2.41 ns |  2.25 ns |     ? |       ? | 0.0086 |      72 B |           ? |
+|                             |            |        |                         |            |          |          |       |         |        |           |             |
+| **GeneratePassword**            | **Vulnerable** | **24**     | **0**                       |   **298.9 ns** |  **2.96 ns** |  **2.31 ns** |  **1.00** |    **0.01** | **0.1516** |    **1272 B** |        **1.00** |
+| GetItemsWithRejection       | Vulnerable | 24     | 0                       |   289.4 ns |  1.56 ns |  1.30 ns |  0.97 |    0.01 | 0.0172 |     144 B |        0.11 |
+| SpecialLoop                 | Vulnerable | 24     | 0                       |   202.6 ns |  0.86 ns |  0.67 ns |  0.68 |    0.01 | 0.0172 |     144 B |        0.11 |
+| StackAlloc                  | Vulnerable | 24     | 0                       |   201.7 ns |  1.78 ns |  1.67 ns |  0.67 |    0.01 | 0.0086 |      72 B |        0.06 |
+|                             |            |        |                         |            |          |          |       |         |        |           |             |
+| **GetItemsWithRejection**       | **Vulnerable** | **24**     | **1**                       |   **294.3 ns** |  **2.12 ns** |  **1.88 ns** |     **?** |       **?** | **0.0172** |     **145 B** |           **?** |
+| SpecialLoop                 | Vulnerable | 24     | 1                       |   204.8 ns |  2.75 ns |  2.57 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+| StackAlloc                  | Vulnerable | 24     | 1                       |   201.0 ns |  1.07 ns |  0.95 ns |     ? |       ? | 0.0086 |      72 B |           ? |
+|                             |            |        |                         |            |          |          |       |         |        |           |             |
+| **GetItemsWithRejection**       | **Vulnerable** | **24**     | **2**                       |   **312.3 ns** |  **1.09 ns** |  **0.91 ns** |     **?** |       **?** | **0.0176** |     **150 B** |           **?** |
+| SpecialLoop                 | Vulnerable | 24     | 2                       |   232.5 ns |  1.14 ns |  0.95 ns |     ? |       ? | 0.0172 |     144 B |           ? |
+| StackAlloc                  | Vulnerable | 24     | 2                       |   230.0 ns |  2.54 ns |  2.37 ns |     ? |       ? | 0.0086 |      72 B |           ? |
+
+Checking in a loop has significantly reduced the overhead of counting special characters. Stack allocation has shaved 1-2ns off the time too, but perhaps more importantly, has halved the heap usage.
+
+
 
 # Notes
 

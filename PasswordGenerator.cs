@@ -242,9 +242,6 @@ namespace PasswordGen
             }
         }
 
-
-
-
         [BenchmarkCategory("Vulnerable"), Benchmark()]
         public string GetItemsWithRejection()
         {
@@ -275,6 +272,95 @@ namespace PasswordGen
                 {
                     return new(buffer);
                 }
+            }
+        }
+
+
+        [BenchmarkCategory("Vulnerable"), Benchmark()]
+        public string SpecialLoop()
+        {
+            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+            char[] buffer = new char[Length];
+            while (true)
+            {
+                Random.Shared.GetItems<char>(characters, buffer);
+                int specialChars = 0;
+
+                for (int i = 0; i < Length; i++)
+                {
+                    if (!char.IsAsciiLetterOrDigit(buffer[i]) && (++specialChars >= MinmumSpecialCharacters))
+                    {
+                        return new(buffer);
+                    }
+                }
+            }
+        }
+
+        [BenchmarkCategory("Secure"), Benchmark()]
+        public string SpecialLoopSecure()
+        {
+            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+            char[] buffer = new char[Length];
+            while (true)
+            {
+                RandomNumberGenerator.GetItems<char>(characters, buffer);
+                int specialChars = 0;
+
+                for (int i = 0; i < Length; i++)
+                {
+                    if (!char.IsAsciiLetterOrDigit(buffer[i]) && (++specialChars >= MinmumSpecialCharacters))
+                    {
+                        return new(buffer);
+                    }
+                }
+            }
+        }
+
+        [BenchmarkCategory("Vulnerable"), Benchmark()]
+        public string StackAlloc()
+        {
+            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+
+            Span<char> buffer = stackalloc char[Length];
+
+            while (true)
+            {
+                Random.Shared.GetItems<char>(characters, buffer);
+
+                int specialChars = 0;
+
+                for (int i = 0; i < Length; i++)
+                {
+                    if (!char.IsAsciiLetterOrDigit(buffer[i]) && (++specialChars >= MinmumSpecialCharacters))
+                    {
+                        return new(buffer);
+                    }
+                }
+
+            }
+        }
+
+        [BenchmarkCategory("Secure"), Benchmark()]
+        public string StackAllocSecure()
+        {
+            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+
+            Span<char> buffer = stackalloc char[Length];
+
+            while (true)
+            {
+                RandomNumberGenerator.GetItems<char>(characters, buffer);
+
+                int specialChars = 0;
+
+                for (int i = 0; i < Length; i++)
+                {
+                    if (!char.IsAsciiLetterOrDigit(buffer[i]) && (++specialChars >= MinmumSpecialCharacters))
+                    {
+                        return new(buffer);
+                    }
+                }
+
             }
         }
 
