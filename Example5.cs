@@ -10,15 +10,22 @@ namespace PasswordGen
     public class Example5
     {
 
+        private const string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+        private const string charactersShortSet = "abcdefghjkmnpqrstuwxyzABCDEFGHJKLMNPQRSTVWXYZ0123456789@#$%&()_+";
+
+        [Params(0, 1, 2)]
+        public int MinmumSpecialCharacters { get; set; }
+
+        [Params(14, 24, 32)]
+        public int Length { get; set; }
+
         [BenchmarkCategory("Vulnerable"), Benchmark(Baseline = true)]
-        [Arguments(24, 0)]
-        public string GeneratePassword(int length, int minmumSpecialCharacters)
+        public string GeneratePassword()
         {
             string password = "";
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
             System.Random random = new System.Random();
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < Length; i++)
             {
                 password += characters[random.Next(characters.Length)];
             }
@@ -26,13 +33,11 @@ namespace PasswordGen
         }
 
         [BenchmarkCategory("Secure"), Benchmark(Baseline = true)]
-        [Arguments(24, 0)]
-        public string SecureRandom(int length, int minmumSpecialCharacters)
+        public string SecureRandom()
         {
             string password = "";
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < Length; i++)
             {
                 password += characters[RandomNumberGenerator.GetInt32(characters.Length)];
             }
@@ -41,17 +46,10 @@ namespace PasswordGen
 
 
         [BenchmarkCategory("Vulnerable"), Benchmark()]
-        [Arguments(24, 0)]
-        [Arguments(24, 1)]
-        [Arguments(24, 2)]
-        public string RejectionSample(int length, int minmumSpecialCharacters)
+        public string RejectionSample()
         {
-
-            string characters = "abcdefghjkmnpqrstuwxyzABCDEFGHJKLMNPQRSTVWXYZ0123456789@#$%&()_+";
-
-            byte[] bytebuffer = new byte[length];
-            char[] buffer = new char[length];
-
+            byte[] bytebuffer = new byte[Length];
+            char[] buffer = new char[Length];
 
             while (true)
             {
@@ -59,14 +57,14 @@ namespace PasswordGen
                 int specialChars = 0;
                 bool metMinimum = false;
 
-                for (int i = 0; i < length; i++)
+                for (int i = 0; i < Length; i++)
                 {
-                    if (!metMinimum && (bytebuffer[i] > 54) && (++specialChars >= minmumSpecialCharacters))
+                    if (!metMinimum && (bytebuffer[i] > 54) && (++specialChars >= MinmumSpecialCharacters))
                     {
                         metMinimum = true;
                     }
 
-                    buffer[i] = characters[bytebuffer[i] % 64];
+                    buffer[i] = charactersShortSet[bytebuffer[i] % 64];
                 }
 
                 if (metMinimum)
@@ -79,15 +77,10 @@ namespace PasswordGen
         }
 
         [BenchmarkCategory("Secure"), Benchmark()]
-        [Arguments(24, 0)]
-        [Arguments(24, 1)]
-        [Arguments(24, 2)]
-        public string RejectionSampleSecure(int length, int minmumSpecialCharacters)
+        public string RejectionSampleSecure()
         {
-            string characters = "abcdefghjkmnpqrstuwxyzABCDEFGHJKLMNPQRSTVWXYZ0123456789@#$%&()_+";
-
-            byte[] bytebuffer = new byte[length];
-            char[] buffer = new char[length];
+            byte[] bytebuffer = new byte[Length];
+            char[] buffer = new char[Length];
 
             while (true)
             {
@@ -95,14 +88,14 @@ namespace PasswordGen
                 int specialChars = 0;
                 bool metMinimum = false;
 
-                for (int i = 0; i < length; i++)
+                for (int i = 0; i < Length; i++)
                 {
-                    if (!metMinimum && (bytebuffer[i] > 54) && (++specialChars >= minmumSpecialCharacters))
+                    if (!metMinimum && (bytebuffer[i] > 54) && (++specialChars >= MinmumSpecialCharacters))
                     {
                         metMinimum = true;
                     }
 
-                    buffer[i] = characters[bytebuffer[i] % 64];
+                    buffer[i] = charactersShortSet[bytebuffer[i] % 64];
                 }
 
                 if (metMinimum)
@@ -113,23 +106,14 @@ namespace PasswordGen
             }
         }
 
-
-
-
         [BenchmarkCategory("Vulnerable"), Benchmark()]
-        [Arguments(24, 0)]
-        [Arguments(24, 1)]
-        [Arguments(24, 2)]
-        public string GetItemsWithRejection(int length, int minmumSpecialCharacters)
+        public string GetItemsWithRejection()
         {
-
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-
             while (true)
             {
-                char[] buffer = Random.Shared.GetItems<char>(characters, length);
+                char[] buffer = Random.Shared.GetItems<char>(characters, Length);
 
-                if ((buffer.Length - buffer.Count(char.IsAsciiLetterOrDigit)) >= minmumSpecialCharacters)
+                if ((buffer.Length - buffer.Count(char.IsAsciiLetterOrDigit)) >= MinmumSpecialCharacters)
                 {
                     return new(buffer);
                 }
@@ -138,22 +122,19 @@ namespace PasswordGen
         }
 
         [BenchmarkCategory("Secure"), Benchmark()]
-        [Arguments(24, 0)]
-        [Arguments(24, 1)]
-        [Arguments(24, 2)]
-        public string GetItemsWithRejectionSecure(int length, int minmumSpecialCharacters)
+        public string GetItemsWithRejectionSecure()
         {
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
             while (true)
             {
-                char[] buffer = RandomNumberGenerator.GetItems<char>(characters, length);
+                char[] buffer = RandomNumberGenerator.GetItems<char>(characters, Length);
 
-                if ((buffer.Length - buffer.Count(char.IsAsciiLetterOrDigit)) >= minmumSpecialCharacters)
+                if ((buffer.Length - buffer.Count(char.IsAsciiLetterOrDigit)) >= MinmumSpecialCharacters)
                 {
                     return new(buffer);
                 }
             }
         }
+
 
     }
 }
