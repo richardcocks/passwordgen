@@ -261,14 +261,14 @@ namespace PasswordGen
         }
 
         [BenchmarkCategory("Secure"), Benchmark()]
-        public string GetItemsWithRejectionSecure(int length, int minmumSpecialCharacters)
+        public string GetItemsWithRejectionSecure()
         {
             string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
             while (true)
             {
-                char[] buffer = RandomNumberGenerator.GetItems<char>(characters, length);
+                char[] buffer = RandomNumberGenerator.GetItems<char>(characters, Length);
 
-                if ((buffer.Length - buffer.Count(char.IsAsciiLetterOrDigit)) >= minmumSpecialCharacters)
+                if ((buffer.Length - buffer.Count(char.IsAsciiLetterOrDigit)) >= MinmumSpecialCharacters)
                 {
                     return new(buffer);
                 }
