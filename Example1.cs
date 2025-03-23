@@ -25,11 +25,11 @@ namespace PasswordGen
         }
 
         [Benchmark()]
-        public string SecureRandom(int length)
+        public string SecureRandom()
         {
             string password = "";
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < Length; i++)
             {
                 password += characters[RandomNumberGenerator.GetInt32(characters.Length)];
             }
