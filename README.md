@@ -57,7 +57,10 @@ Let's get this under the benchmark microscope to see how we can address performa
 
 Measuring baseline performance is easy with [BenchmarkDotNet](https://github.com/dotnet/BenchmarkDotNet), we just create a class and then annotate it. 
 
-I've gone with 3 different lengths of passwords, so that we can see the effect of increasing password length on generation, and also used two separate categories so we can compare our optimisation efforts on both the secure and vulnerable versions of the password generator.
+
+Since we're creating a class, let's move `length` and `characters` to properties in the class.
+
+ This will also let us easily parameterise the length across our benchmarks. I've gone with 3 different lengths of passwords, so that we can see the effect of increasing password length on generation, and also used two separate categories so we can compare our optimisation efforts on both the secure and vulnerable versions of the password generator.
 
 
 ```csharp

@@ -6,18 +6,18 @@ namespace PasswordGen
     [MemoryDiagnoser]
     public class Example1
     {
+        [Params(14, 24, 32)]
+        public int Length { get; set; }
+
+        private const string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
         [Benchmark(Baseline = true)]
-        [Arguments(14)]
-        [Arguments(24)]
-        [Arguments(32)]
-        public string GeneratePassword(int length)
+        public string GeneratePassword()
         {
             string password = "";
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
             System.Random random = new System.Random();
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < Length; i++)
             {
                 password += characters[random.Next(characters.Length)];
             }
@@ -25,13 +25,9 @@ namespace PasswordGen
         }
 
         [Benchmark()]
-        [Arguments(14)]
-        [Arguments(24)]
-        [Arguments(32)]
         public string SecureRandom(int length)
         {
             string password = "";
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
             for (int i = 0; i < length; i++)
             {
@@ -41,16 +37,11 @@ namespace PasswordGen
         }
 
         [Benchmark()]
-        [Arguments(14)]
-        [Arguments(24)]
-        [Arguments(32)]
-        public string GeneratePasswordSharedRandom(int length)
+        public string GeneratePasswordSharedRandom()
         {
             string password = "";
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
-
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < Length; i++)
             {
                 password += characters[Random.Shared.Next(characters.Length)];
             }
