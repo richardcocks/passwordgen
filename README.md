@@ -64,18 +64,14 @@ Since we're creating a class, let's move `length` and `characters` to properties
 
 
 ```csharp
-[Arguments(14)]
-[Arguments(24)]
-[Arguments(32)]
-public string GeneratePasswordSharedRandom(int length)
+[Benchmark()]
+public string GeneratePasswordSharedRandom()
 {
     string password = "";
-    string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-    System.Random random = new System.Random();
 
-    for (int i = 0; i < length; i++)
+    for (int i = 0; i < Length; i++)
     {
-        password += characters[random.Next(characters.Length)];
+        password += characters[Random.Shared.Next(characters.Length)];
     }
     return password;
 }
@@ -145,52 +141,38 @@ namespace PasswordGen
 
 </details>
 
-```
-
-BenchmarkDotNet v0.14.0, Windows 10 (10.0.19045.5608/22H2/2022Update)
-AMD Ryzen 7 3800X, 1 CPU, 16 logical and 8 physical cores
-.NET SDK 10.0.100-preview.2.25164.34
-  [Host]     : .NET 10.0.0 (10.0.25.16302), X64 RyuJIT AVX2
-  DefaultJob : .NET 10.0.0 (10.0.25.16302), X64 RyuJIT AVX2
-
-
-```
-| Method                       | length | Mean       | Error    | StdDev   | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
+| Method                       | Length | Mean       | Error    | StdDev   | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
 |----------------------------- |------- |-----------:|---------:|---------:|------:|--------:|-------:|----------:|------------:|
-| **GeneratePassword**             | **14**     |   **209.1 ns** |  **3.19 ns** |  **2.82 ns** |  **1.00** |    **0.02** | **0.0753** |     **632 B** |        **1.00** |
-| SecureRandom                     | 14     | 1,355.4 ns |  6.80 ns |  6.36 ns |  6.48 |    0.09 | 0.0668 |     560 B |        0.89 |
-| GeneratePasswordSharedRandom | 14     |   129.4 ns |  2.12 ns |  1.66 ns |  0.62 |    0.01 | 0.0668 |     560 B |        0.89 |
+| **GeneratePassword**             | **14**     |   **219.0 ns** |  **4.19 ns** |  **3.92 ns** |  **1.00** |    **0.02** | **0.0753** |     **632 B** |        **1.00** |
+| SecureRandom                 | 14     | 1,378.7 ns |  6.59 ns |  5.50 ns |  6.30 |    0.11 | 0.0668 |     560 B |        0.89 |
+| GeneratePasswordSharedRandom | 14     |   129.3 ns |  1.85 ns |  1.54 ns |  0.59 |    0.01 | 0.0668 |     560 B |        0.89 |
 |                              |        |            |          |          |       |         |        |           |             |
-| **GeneratePassword**             | **24**     |   **300.8 ns** |  **5.80 ns** |  **6.21 ns** |  **1.00** |    **0.03** | **0.1516** |    **1272 B** |        **1.00** |
-| SecureRandom                     | 24     | 2,370.3 ns | 24.11 ns | 22.55 ns |  7.88 |    0.17 | 0.1411 |    1200 B |        0.94 |
-| GeneratePasswordSharedRandom | 24     |   230.1 ns |  4.31 ns |  4.03 ns |  0.77 |    0.02 | 0.1433 |    1200 B |        0.94 |
+| **GeneratePassword**             | **24**     |   **307.6 ns** |  **4.08 ns** |  **3.41 ns** |  **1.00** |    **0.02** | **0.1516** |    **1272 B** |        **1.00** |
+| SecureRandom                 | 24     | 2,379.0 ns | 11.01 ns |  9.20 ns |  7.73 |    0.09 | 0.1411 |    1200 B |        0.94 |
+| GeneratePasswordSharedRandom | 24     |   227.1 ns |  1.20 ns |  0.93 ns |  0.74 |    0.01 | 0.1433 |    1200 B |        0.94 |
 |                              |        |            |          |          |       |         |        |           |             |
-| **GeneratePassword**             | **32**     |   **375.7 ns** |  **7.42 ns** |  **9.11 ns** |  **1.00** |    **0.03** | **0.2303** |    **1928 B** |        **1.00** |
-| SecureRandom                     | 32     | 3,149.0 ns | 16.66 ns | 14.77 ns |  8.39 |    0.20 | 0.2213 |    1856 B |        0.96 |
-| GeneratePasswordSharedRandom | 32     |   308.8 ns |  4.07 ns |  3.40 ns |  0.82 |    0.02 | 0.2217 |    1856 B |        0.96 |
+| **GeneratePassword**             | **32**     |   **390.2 ns** |  **7.85 ns** |  **9.64 ns** |  **1.00** |    **0.03** | **0.2303** |    **1928 B** |        **1.00** |
+| SecureRandom                 | 32     | 3,181.0 ns | 18.73 ns | 15.64 ns |  8.16 |    0.20 | 0.2213 |    1856 B |        0.96 |
+| GeneratePasswordSharedRandom | 32     |   314.4 ns |  6.03 ns |  6.20 ns |  0.81 |    0.02 | 0.2217 |    1856 B |        0.96 |
 
 
-We can now see that avoiding `new System.Random()` increased performance, roughly 30% faster for the 24 character example.
+
+We can now see that avoiding `new System.Random()` increased performance, roughly 35% faster for the 24 character example.
 
 We can also see that using `RandomNumberGenerator.GetInt32` destroyed our performance, taking us into the microsecond territory and taking around 8 times as long to do the same work.
 
-To make future comparisons easier, we can add `[BenchmarkCategory("Secure")]` and `[BenchmarkCategory("Vulnerable")]` attributes to our benchmarks to mark `GeneratePassword` and `SecureRandom` as two separate baselines, so we can more easily examine the performane impact on each. We also need to mark the class with `[GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]` and `[CategoriesColumn]` to get a category column in the output table.
+To make future comparisons easier, we can add `[BenchmarkCategory("Secure")]` and `[BenchmarkCategory("Vulnerable")]` attributes to our benchmarks to mark `GeneratePassword` and `SecureRandom` as two separate baselines, so we can more easily examine the performane impact on changes made to each. We also need to mark the class with `[GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]` and `[CategoriesColumn]` to get a category column in the output table.
 
 ## String Building
-Okay, let's do the other "obvious" improvement, use `StringBuilder`, so our non-secure version now looks like this:
+Okay, let's do the other straightforward and obvious improvement, to use `StringBuilder`, so that our non-secure version now looks like this:
 
 ```csharp
 [BenchmarkCategory("Vulnerable"), Benchmark()]
-[Arguments(14)]
-[Arguments(24)]
-[Arguments(32)]
-public string StringBuilder(int length)
+public string StringBuilder()
 {
 
-    string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-
-    StringBuilder password = new(length);
-    for (int i = 0; i < length; i++)
+    StringBuilder password = new(Length);
+    for (int i = 0; i < Length; i++)
     {
         password.Append(characters[Random.Shared.Next(characters.Length)]);
     }
@@ -204,13 +186,12 @@ public string StringBuilder(int length)
 We know the size of the string, so we were able to intialize our string builder with that capacity. But given we know the size of the string, wouldn't it be faster still to allocate a `char[]` and fill it? Let's try that at the same time and compare:
 
 ```csharp
-//...Annotated as required
-public string CharArray(int length)
+[BenchmarkCategory("Secure"), Benchmark()]
+public string CharArraySecure()
 {
-    string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-    char[] buffer = new char[length];
+    char[] buffer = new char[Length];
 
-    for (int i = 0; i < length; i++)
+    for (int i = 0; i < Length; i++)
     {
         buffer[i] = characters[RandomNumberGenerator.GetInt32(characters.Length)];
     }
@@ -221,35 +202,33 @@ public string CharArray(int length)
 // With an equivalent Vulnerable version not shown here.
 ```
 
-
-
 Here are the results:
 
-| Method              | Categories | length | Mean        | Error     | StdDev    | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
-|-------------------- |----------- |------- |------------:|----------:|----------:|------:|--------:|-------:|----------:|------------:|
-| **SecureRandom**        | **Secure**     | **14**     | **1,364.06 ns** |  **8.434 ns** |  **7.889 ns** |  **1.00** |    **0.01** | **0.0668** |     **560 B** |        **1.00** |
-| StringBuilderSecure | Secure     | 14     | 1,184.39 ns |  8.104 ns |  7.580 ns |  0.87 |    0.01 | 0.0191 |     160 B |        0.29 |
-| CharArraySecure     | Secure     | 14     | 1,150.42 ns |  6.884 ns |  6.440 ns |  0.84 |    0.01 | 0.0134 |     112 B |        0.20 |
-|                     |            |        |             |           |           |       |         |        |           |             |
-| **SecureRandom**        | **Secure**     | **24**     | **2,377.82 ns** | **21.939 ns** | **20.522 ns** |  **1.00** |    **0.01** | **0.1411** |    **1200 B** |        **1.00** |
-| StringBuilderSecure | Secure     | 24     | 2,001.11 ns | 15.455 ns | 14.457 ns |  0.84 |    0.01 | 0.0229 |     192 B |        0.16 |
-| CharArraySecure     | Secure     | 24     | 1,984.42 ns | 12.424 ns | 11.621 ns |  0.83 |    0.01 | 0.0153 |     144 B |        0.12 |
-|                     |            |        |             |           |           |       |         |        |           |             |
-| **SecureRandom**        | **Secure**     | **32**     | **3,202.80 ns** | **24.865 ns** | **22.042 ns** |  **1.00** |    **0.01** | **0.2213** |    **1856 B** |        **1.00** |
-| StringBuilderSecure | Secure     | 32     | 2,660.34 ns | 20.415 ns | 19.096 ns |  0.83 |    0.01 | 0.0267 |     224 B |        0.12 |
-| CharArraySecure     | Secure     | 32     | 2,630.29 ns | 19.468 ns | 17.258 ns |  0.82 |    0.01 | 0.0191 |     176 B |        0.09 |
-|                     |            |        |             |           |           |       |         |        |           |             |
-| **GeneratePassword**    | **Vulnerable** | **14**     |   **211.08 ns** |  **2.530 ns** |  **2.113 ns** |  **1.00** |    **0.01** | **0.0753** |     **632 B** |        **1.00** |
-| StringBuilder       | Vulnerable | 14     |    89.14 ns |  1.814 ns |  2.825 ns |  0.42 |    0.01 | 0.0191 |     160 B |        0.25 |
-| CharArray           | Vulnerable | 14     |    65.74 ns |  0.775 ns |  0.725 ns |  0.31 |    0.00 | 0.0134 |     112 B |        0.18 |
-|                     |            |        |             |           |           |       |         |        |           |             |
-| **GeneratePassword**    | **Vulnerable** | **24**     |   **303.30 ns** |  **5.931 ns** |  **4.953 ns** |  **1.00** |    **0.02** | **0.1516** |    **1272 B** |        **1.00** |
-| StringBuilder       | Vulnerable | 24     |   185.86 ns |  3.759 ns |  9.770 ns |  0.61 |    0.03 | 0.0229 |     192 B |        0.15 |
-| CharArray           | Vulnerable | 24     |   105.90 ns |  1.389 ns |  1.299 ns |  0.35 |    0.01 | 0.0172 |     144 B |        0.11 |
-|                     |            |        |             |           |           |       |         |        |           |             |
-| **GeneratePassword**    | **Vulnerable** | **32**     |   **376.81 ns** |  **6.435 ns** |  **5.374 ns** |  **1.00** |    **0.02** | **0.2303** |    **1928 B** |        **1.00** |
-| StringBuilder       | Vulnerable | 32     |   204.31 ns |  4.068 ns |  5.145 ns |  0.54 |    0.02 | 0.0267 |     224 B |        0.12 |
-| CharArray           | Vulnerable | 32     |   137.89 ns |  1.867 ns |  1.655 ns |  0.37 |    0.01 | 0.0210 |     176 B |        0.09 |
+| Method              | Categories | Length | Mean        | Error     | StdDev    | Median      | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
+|-------------------- |----------- |------- |------------:|----------:|----------:|------------:|------:|--------:|-------:|----------:|------------:|
+| **SecureRandom**        | **Secure**     | **14**     | **1,406.36 ns** | **24.936 ns** | **22.105 ns** | **1,399.08 ns** |  **1.00** |    **0.02** | **0.0668** |     **560 B** |        **1.00** |
+| StringBuilderSecure | Secure     | 14     | 1,183.25 ns | 22.336 ns | 21.937 ns | 1,175.49 ns |  0.84 |    0.02 | 0.0191 |     160 B |        0.29 |
+| CharArraySecure     | Secure     | 14     | 1,170.42 ns |  4.963 ns |  4.643 ns | 1,171.53 ns |  0.83 |    0.01 | 0.0134 |     112 B |        0.20 |
+|                     |            |        |             |           |           |             |       |         |        |           |             |
+| **SecureRandom**        | **Secure**     | **24**     | **2,278.24 ns** | **13.348 ns** | **11.833 ns** | **2,277.78 ns** |  **1.00** |    **0.01** | **0.1411** |    **1200 B** |        **1.00** |
+| StringBuilderSecure | Secure     | 24     | 2,000.61 ns |  8.895 ns |  7.428 ns | 2,002.13 ns |  0.88 |    0.01 | 0.0229 |     192 B |        0.16 |
+| CharArraySecure     | Secure     | 24     | 1,983.18 ns |  8.655 ns |  7.672 ns | 1,981.64 ns |  0.87 |    0.01 | 0.0153 |     144 B |        0.12 |
+|                     |            |        |             |           |           |             |       |         |        |           |             |
+| **SecureRandom**        | **Secure**     | **32**     | **3,158.97 ns** | **14.740 ns** | **12.308 ns** | **3,157.65 ns** |  **1.00** |    **0.01** | **0.2213** |    **1856 B** |        **1.00** |
+| StringBuilderSecure | Secure     | 32     | 2,636.48 ns | 14.115 ns | 13.203 ns | 2,638.96 ns |  0.83 |    0.01 | 0.0267 |     224 B |        0.12 |
+| CharArraySecure     | Secure     | 32     | 2,629.67 ns | 11.391 ns | 10.655 ns | 2,630.99 ns |  0.83 |    0.00 | 0.0191 |     176 B |        0.09 |
+|                     |            |        |             |           |           |             |       |         |        |           |             |
+| **GeneratePassword**    | **Vulnerable** | **14**     |   **218.57 ns** |  **3.956 ns** |  **3.700 ns** |   **217.32 ns** |  **1.00** |    **0.02** | **0.0753** |     **632 B** |        **1.00** |
+| StringBuilder       | Vulnerable | 14     |    91.63 ns |  1.880 ns |  4.540 ns |    89.94 ns |  0.42 |    0.02 | 0.0191 |     160 B |        0.25 |
+| CharArray           | Vulnerable | 14     |    66.62 ns |  0.340 ns |  0.284 ns |    66.60 ns |  0.30 |    0.01 | 0.0134 |     112 B |        0.18 |
+|                     |            |        |             |           |           |             |       |         |        |           |             |
+| **GeneratePassword**    | **Vulnerable** | **24**     |   **309.67 ns** |  **5.906 ns** |  **5.525 ns** |   **306.79 ns** |  **1.00** |    **0.02** | **0.1516** |    **1272 B** |        **1.00** |
+| StringBuilder       | Vulnerable | 24     |   158.18 ns |  3.241 ns |  8.706 ns |   157.86 ns |  0.51 |    0.03 | 0.0229 |     192 B |        0.15 |
+| CharArray           | Vulnerable | 24     |   108.31 ns |  1.156 ns |  1.082 ns |   107.71 ns |  0.35 |    0.01 | 0.0172 |     144 B |        0.11 |
+|                     |            |        |             |           |           |             |       |         |        |           |             |
+| **GeneratePassword**    | **Vulnerable** | **32**     |   **384.21 ns** |  **4.711 ns** |  **3.678 ns** |   **385.03 ns** |  **1.00** |    **0.01** | **0.2303** |    **1928 B** |        **1.00** |
+| StringBuilder       | Vulnerable | 32     |   182.13 ns |  2.545 ns |  2.125 ns |   182.57 ns |  0.47 |    0.01 | 0.0267 |     224 B |        0.12 |
+| CharArray           | Vulnerable | 32     |   141.43 ns |  0.751 ns |  0.627 ns |   141.33 ns |  0.37 |    0.00 | 0.0210 |     176 B |        0.09 |
 
 
 Okay, that's another modest improvement, and we've confirmed the `char[]` approach beats out `StringBuilder` for building short strings from characters.
@@ -306,10 +285,10 @@ Let's define our new character set:
 
 
 ```csharp
-string characters = "abcdefghjkmnpqrstuwxyzABCDEFGHJKLMNPQRSTVWXYZ0123456789@#$%&()_+";
+private const string charactersShortSet = "abcdefghjkmnpqrstuwxyzABCDEFGHJKLMNPQRSTVWXYZ0123456789@#$%&()_+";
 ```
 
-So now we have a character set, let's add a function that gets all the bytes at once from our Random sources:
+Now we have a character set that won't introduce bias, let's add a function that gets all the bytes at once from our Random sources:
 
 ```csharp
 public string Buffer(int length)
@@ -334,25 +313,26 @@ public string Buffer(int length)
 With of course an equivalent "Secure" version using `RandomNumberGenerator.Fill`.
 
 Results:
-| Method           | Categories | length | Mean        | Error     | StdDev    | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
+| Method           | Categories | Length | Mean        | Error     | StdDev    | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
 |----------------- |----------- |------- |------------:|----------:|----------:|------:|--------:|-------:|----------:|------------:|
-| **SecureRandom**     | **Secure**     | **14**     | **1,352.82 ns** |  **6.425 ns** |  **5.365 ns** |  **1.00** |    **0.01** | **0.0668** |     **560 B** |        **1.00** |
-| BufferSecure     | Secure     | 14     |    85.38 ns |  0.917 ns |  0.766 ns |  0.06 |    0.00 | 0.0181 |     152 B |        0.27 |
+| **SecureRandom**     | **Secure**     | **14**     | **1,385.36 ns** |  **7.762 ns** |  **6.881 ns** |  **1.00** |    **0.01** | **0.0668** |     **560 B** |        **1.00** |
+| BufferSecure     | Secure     | 14     |    86.59 ns |  0.738 ns |  0.654 ns |  0.06 |    0.00 | 0.0181 |     152 B |        0.27 |
 |                  |            |        |             |           |           |       |         |        |           |             |
-| **SecureRandom**     | **Secure**     | **24**     | **2,333.30 ns** | **14.006 ns** | **12.416 ns** |  **1.00** |    **0.01** | **0.1411** |    **1200 B** |        **1.00** |
-| BufferSecure     | Secure     | 24     |   106.09 ns |  1.626 ns |  1.441 ns |  0.05 |    0.00 | 0.0229 |     192 B |        0.16 |
+| **SecureRandom**     | **Secure**     | **24**     | **2,385.88 ns** | **15.122 ns** | **13.405 ns** |  **1.00** |    **0.01** | **0.1411** |    **1200 B** |        **1.00** |
+| BufferSecure     | Secure     | 24     |   107.46 ns |  1.057 ns |  0.989 ns |  0.05 |    0.00 | 0.0229 |     192 B |        0.16 |
 |                  |            |        |             |           |           |       |         |        |           |             |
-| **SecureRandom**     | **Secure**     | **32**     | **3,110.23 ns** | **29.132 ns** | **27.250 ns** |  **1.00** |    **0.01** | **0.2213** |    **1856 B** |        **1.00** |
-| BufferSecure     | Secure     | 32     |   116.60 ns |  1.452 ns |  1.287 ns |  0.04 |    0.00 | 0.0277 |     232 B |        0.12 |
+| **SecureRandom**     | **Secure**     | **32**     | **3,182.64 ns** | **13.813 ns** | **10.785 ns** |  **1.00** |    **0.00** | **0.2213** |    **1856 B** |        **1.00** |
+| BufferSecure     | Secure     | 32     |   117.98 ns |  1.035 ns |  0.917 ns |  0.04 |    0.00 | 0.0277 |     232 B |        0.12 |
 |                  |            |        |             |           |           |       |         |        |           |             |
-| **GeneratePassword** | **Vulnerable** | **14**     |   **207.47 ns** |  **2.094 ns** |  **1.635 ns** |  **1.00** |    **0.01** | **0.0753** |     **632 B** |        **1.00** |
-| Buffer           | Vulnerable | 14     |    31.42 ns |  0.668 ns |  0.714 ns |  0.15 |    0.00 | 0.0181 |     152 B |        0.24 |
+| **GeneratePassword** | **Vulnerable** | **14**     |   **218.01 ns** |  **3.323 ns** |  **3.412 ns** |  **1.00** |    **0.02** | **0.0753** |     **632 B** |        **1.00** |
+| Buffer           | Vulnerable | 14     |    32.63 ns |  0.345 ns |  0.269 ns |  0.15 |    0.00 | 0.0181 |     152 B |        0.24 |
 |                  |            |        |             |           |           |       |         |        |           |             |
-| **GeneratePassword** | **Vulnerable** | **24**     |   **302.17 ns** |  **6.019 ns** |  **6.932 ns** |  **1.00** |    **0.03** | **0.1516** |    **1272 B** |        **1.00** |
-| Buffer           | Vulnerable | 24     |    36.89 ns |  0.477 ns |  0.423 ns |  0.12 |    0.00 | 0.0229 |     192 B |        0.15 |
+| **GeneratePassword** | **Vulnerable** | **24**     |   **306.43 ns** |  **4.712 ns** |  **4.177 ns** |  **1.00** |    **0.02** | **0.1516** |    **1272 B** |        **1.00** |
+| Buffer           | Vulnerable | 24     |    37.25 ns |  0.270 ns |  0.225 ns |  0.12 |    0.00 | 0.0229 |     192 B |        0.15 |
 |                  |            |        |             |           |           |       |         |        |           |             |
-| **GeneratePassword** | **Vulnerable** | **32**     |   **365.64 ns** |  **4.961 ns** |  **4.640 ns** |  **1.00** |    **0.02** | **0.2303** |    **1928 B** |        **1.00** |
-| Buffer           | Vulnerable | 32     |    43.05 ns |  0.638 ns |  0.566 ns |  0.12 |    0.00 | 0.0277 |     232 B |        0.12 |
+| **GeneratePassword** | **Vulnerable** | **32**     |   **374.71 ns** |  **4.076 ns** |  **3.812 ns** |  **1.00** |    **0.01** | **0.2303** |    **1928 B** |        **1.00** |
+| Buffer           | Vulnerable | 32     |    44.37 ns |  0.522 ns |  0.488 ns |  0.12 |    0.00 | 0.0277 |     232 B |        0.12 |
+
 
 Now there's the improvement we were hoping for! Our Vulnerable version is now up to 8 times faster than the original co-pilot output.
 

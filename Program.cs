@@ -3,8 +3,9 @@ using PasswordGen;
 
 
 
-BenchmarkRunner.Run<Example1>();
+
 /*
+BenchmarkRunner.Run<Example1>();
 BenchmarkRunner.Run<Example2>();
 BenchmarkRunner.Run<Example3>();
 BenchmarkRunner.Run<Example4>();
@@ -12,4 +13,6 @@ BenchmarkRunner.Run<Example5>();
 BenchmarkRunner.Run<Example6>();
 */
 
-//BenchmarkRunner.Run<PasswordGenerator>();
+BenchmarkRunner.Run<Example3>();
+
+// BenchmarkRunner.Run<PasswordGenerator>();

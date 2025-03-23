@@ -10,6 +10,9 @@ namespace PasswordGen
     [MemoryDiagnoser]
     public class PasswordGenerator
     {
+        private const string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+        private const string charactersShortSet = "abcdefghjkmnpqrstuwxyzABCDEFGHJKLMNPQRSTVWXYZ0123456789@#$%&()_+";
+
         [Params(14, 24, 32)]
         public int Length { get; set; }
 
@@ -20,7 +23,6 @@ namespace PasswordGen
         public string GeneratePassword()
         {
             string password = "";
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
             System.Random random = new System.Random();
 
             for (int i = 0; i < Length; i++)
@@ -34,7 +36,6 @@ namespace PasswordGen
         public string SecureRandom()
         {
             string password = "";
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
             for (int i = 0; i < Length; i++)
             {
@@ -47,7 +48,6 @@ namespace PasswordGen
         public string GeneratePasswordSharedRandom()
         {
             string password = "";
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
 
             for (int i = 0; i < Length; i++)
@@ -60,8 +60,6 @@ namespace PasswordGen
         [BenchmarkCategory("Vulnerable"), Benchmark()]
         public string StringBuilder()
         {
-
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
             StringBuilder password = new(Length);
             for (int i = 0; i < Length; i++)
@@ -76,7 +74,6 @@ namespace PasswordGen
         public string StringBuilderSecure()
         {
 
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
             StringBuilder password = new(Length);
             for (int i = 0; i < Length; i++)
@@ -91,7 +88,6 @@ namespace PasswordGen
         public string CharArray()
         {
 
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
             char[] buffer = new char[Length];
 
             for (int i = 0; i < Length; i++)
@@ -105,7 +101,6 @@ namespace PasswordGen
         [BenchmarkCategory("Secure"), Benchmark()]
         public string CharArraySecure()
         {
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
             char[] buffer = new char[Length];
 
             for (int i = 0; i < Length; i++)
@@ -120,8 +115,6 @@ namespace PasswordGen
         public string Buffer()
         {
 
-            string characters = "abcdefghjkmnpqrstuwxyzABCDEFGHJKLMNPQRSTVWXYZ0123456789@#$%&()_+";
-
             byte[] bytebuffer = new byte[Length];
             Random.Shared.NextBytes(bytebuffer);
 
@@ -129,7 +122,7 @@ namespace PasswordGen
 
             for (int i = 0; i < Length; i++)
             {
-                buffer[i] = characters[bytebuffer[i] % 64];
+                buffer[i] = charactersShortSet[bytebuffer[i] % 64];
             }
 
             return new(buffer);
@@ -138,8 +131,6 @@ namespace PasswordGen
         [BenchmarkCategory("Secure"), Benchmark()]
         public string BufferSecure()
         {
-            string characters = "abcdefghjkmnpqrstuwxyzABCDEFGHJKLMNPQRSTVWXYZ0123456789@#$%&()_+";
-
             byte[] bytebuffer = new byte[Length];
             RandomNumberGenerator.Fill(bytebuffer);
 
@@ -147,7 +138,7 @@ namespace PasswordGen
 
             for (int i = 0; i < Length; i++)
             {
-                buffer[i] = characters[bytebuffer[i] % 64];
+                buffer[i] = charactersShortSet[bytebuffer[i] % 64];
             }
 
             return new(buffer);
@@ -157,7 +148,6 @@ namespace PasswordGen
         public string GetItems()
         {
 
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
             char[] buffer = Random.Shared.GetItems<char>(characters, Length);
 
@@ -167,7 +157,6 @@ namespace PasswordGen
         [BenchmarkCategory("Secure"), Benchmark()]
         public string GetItemsSecure()
         {
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
             char[] buffer = RandomNumberGenerator.GetItems<char>(characters, Length);
 
@@ -178,7 +167,6 @@ namespace PasswordGen
         public string RejectionSample()
         {
 
-            string characters = "abcdefghjkmnpqrstuwxyzABCDEFGHJKLMNPQRSTVWXYZ0123456789@#$%&()_+";
 
             byte[] bytebuffer = new byte[Length];
             char[] buffer = new char[Length];
@@ -197,7 +185,7 @@ namespace PasswordGen
                         metMinimum = true;
                     }
 
-                    buffer[i] = characters[bytebuffer[i] % 64];
+                    buffer[i] = charactersShortSet[bytebuffer[i] % 64];
                 }
 
                 if (metMinimum)
@@ -212,7 +200,6 @@ namespace PasswordGen
         [BenchmarkCategory("Secure"), Benchmark()]
         public string RejectionSampleSecure()
         {
-            string characters = "abcdefghjkmnpqrstuwxyzABCDEFGHJKLMNPQRSTVWXYZ0123456789@#$%&()_+";
 
             byte[] bytebuffer = new byte[Length];
             char[] buffer = new char[Length];
@@ -230,7 +217,7 @@ namespace PasswordGen
                         metMinimum = true;
                     }
 
-                    buffer[i] = characters[bytebuffer[i] % 64];
+                    buffer[i] = charactersShortSet[bytebuffer[i] % 64];
                 }
 
                 if (metMinimum)
@@ -245,7 +232,6 @@ namespace PasswordGen
         public string GetItemsWithRejection()
         {
 
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
             while (true)
             {
@@ -262,7 +248,6 @@ namespace PasswordGen
         [BenchmarkCategory("Secure"), Benchmark()]
         public string GetItemsWithRejectionSecure()
         {
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
             while (true)
             {
                 char[] buffer = RandomNumberGenerator.GetItems<char>(characters, Length);
@@ -278,7 +263,6 @@ namespace PasswordGen
         [BenchmarkCategory("Vulnerable"), Benchmark()]
         public string SpecialLoop()
         {
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
             char[] buffer = new char[Length];
             while (true)
             {
@@ -298,7 +282,6 @@ namespace PasswordGen
         [BenchmarkCategory("Secure"), Benchmark()]
         public string SpecialLoopSecure()
         {
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
             char[] buffer = new char[Length];
             while (true)
             {
@@ -318,7 +301,6 @@ namespace PasswordGen
         [BenchmarkCategory("Vulnerable"), Benchmark()]
         public string StackAlloc()
         {
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
             Span<char> buffer = stackalloc char[Length];
 
@@ -342,7 +324,6 @@ namespace PasswordGen
         [BenchmarkCategory("Secure"), Benchmark()]
         public string StackAllocSecure()
         {
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
             Span<char> buffer = stackalloc char[Length];
 

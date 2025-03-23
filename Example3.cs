@@ -9,18 +9,19 @@ namespace PasswordGen
     [CategoriesColumn]
     public class Example3
     {
+        private const string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+        private const string charactersShortSet = "abcdefghjkmnpqrstuwxyzABCDEFGHJKLMNPQRSTVWXYZ0123456789@#$%&()_+";
+
+        [Params(14, 24, 32)]
+        public int Length { get; set; }
 
         [BenchmarkCategory("Vulnerable"), Benchmark(Baseline = true)]
-        [Arguments(14)]
-        [Arguments(24)]
-        [Arguments(32)]
-        public string GeneratePassword(int length)
+        public string GeneratePassword()
         {
             string password = "";
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
             System.Random random = new System.Random();
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < Length; i++)
             {
                 password += characters[random.Next(characters.Length)];
             }
@@ -28,15 +29,11 @@ namespace PasswordGen
         }
 
         [BenchmarkCategory("Secure"), Benchmark(Baseline = true)]
-        [Arguments(14)]
-        [Arguments(24)]
-        [Arguments(32)]
-        public string SecureRandom(int length)
+        public string SecureRandom()
         {
             string password = "";
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < Length; i++)
             {
                 password += characters[RandomNumberGenerator.GetInt32(characters.Length)];
             }
@@ -44,43 +41,32 @@ namespace PasswordGen
         }
 
         [BenchmarkCategory("Vulnerable"), Benchmark()]
-        [Arguments(14)]
-        [Arguments(24)]
-        [Arguments(32)]
-        public string Buffer(int length)
+        public string Buffer()
         {
-
-            string characters = "abcdefghjkmnpqrstuwxyzABCDEFGHJKLMNPQRSTVWXYZ0123456789@#$%&()_+";
-
-            byte[] bytebuffer = new byte[length];
+            byte[] bytebuffer = new byte[Length];
             Random.Shared.NextBytes(bytebuffer);
 
-            char[] buffer = new char[length];
+            char[] buffer = new char[Length];
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < Length; i++)
             {
-                buffer[i] = characters[bytebuffer[i] % 64];
+                buffer[i] = charactersShortSet[bytebuffer[i] % 64];
             }
 
             return new(buffer);
         }
 
         [BenchmarkCategory("Secure"), Benchmark()]
-        [Arguments(14)]
-        [Arguments(24)]
-        [Arguments(32)]
-        public string BufferSecure(int length)
+        public string BufferSecure()
         {
-            string characters = "abcdefghjkmnpqrstuwxyzABCDEFGHJKLMNPQRSTVWXYZ0123456789@#$%&()_+";
-
-            byte[] bytebuffer = new byte[length];
+            byte[] bytebuffer = new byte[Length];
             RandomNumberGenerator.Fill(bytebuffer);
 
-            char[] buffer = new char[length];
+            char[] buffer = new char[Length];
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < Length; i++)
             {
-                buffer[i] = characters[bytebuffer[i] % 64];
+                buffer[i] = charactersShortSet[bytebuffer[i] % 64];
             }
 
             return new(buffer);
