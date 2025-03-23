@@ -16,7 +16,7 @@ namespace PasswordGen
         [Params(0, 1, 2)]
         public int MinmumSpecialCharacters { get; set; }
 
-        [Benchmark(Baseline = true)]
+        [BenchmarkCategory("Vulnerable"), Benchmark(Baseline = true)]
         public string GeneratePassword()
         {
             string password = "";
@@ -30,7 +30,7 @@ namespace PasswordGen
             return password;
         }
 
-        [Benchmark()]
+        [BenchmarkCategory("Secure"), Benchmark(Baseline = true)]
         public string SecureRandom()
         {
             string password = "";
@@ -43,7 +43,7 @@ namespace PasswordGen
             return password;
         }
 
-        [Benchmark()]
+        [BenchmarkCategory("Vulnerable"), Benchmark()]
         public string GeneratePasswordSharedRandom()
         {
             string password = "";
