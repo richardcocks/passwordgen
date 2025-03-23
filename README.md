@@ -515,7 +515,7 @@ public string GetItemsWithRejectionSecure()
 For this solution we have had to enumerate the array again for the `GetItems` approach, which we expect to further worsen it's performance relative to the 64 character set approach, so let's see the results:
 
 <details>
-<summary>Example5.cs</summary>
+<summary>Results table - Rejection Sampling (Example5.cs)</summary>
 
 | Method                      | Categories | MinmumSpecialCharacters | Length | Mean        | Error     | StdDev    | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
 |---------------------------- |----------- |------------------------ |------- |------------:|----------:|----------:|------:|--------:|-------:|----------:|------------:|
@@ -600,7 +600,7 @@ We can try to speed up the `GetItems` based methods by using a loop to count the
 Finally, we can try to avoid a heap allocation by using `stackalloc` to allocate the span on the stack.
 
 <details>
-<summary>Example6.cs</summary>
+<summary>Results table - Loop special character checking (Example6.cs)</summary>
 
 | Method                      | Categories | MinmumSpecialCharacters | Length | Mean       | Error    | StdDev   | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
 |---------------------------- |----------- |------------------------ |------- |-----------:|---------:|---------:|------:|--------:|-------:|----------:|------------:|
