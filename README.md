@@ -699,7 +699,6 @@ Finally, we can try to avoid a heap allocation by using `stackalloc` to allocate
 Checking in a loop has significantly reduced the overhead of counting special characters. Stack allocation has shaved 1-2ns off the time too, but perhaps more importantly, has halved the heap usage.
 
 
-
 # Notes
 
 ## Motivation
@@ -755,8 +754,9 @@ I'd heard that rather than `new string(buffer)`, there were faster methods to al
 
 Instead of `RandomNumberGenerator.Fill` you can use `RandomNumberGenerator.GetBytes` to return the array. This is cleaner syntax but it has no effect on performance. I left `RandomNumberGenerator.Fill` to make the example have syntax that matched `Random.Shared.NextBytes` more closely to make it clear they were otherwise the same.
 
-### Moving the character map outside of the function
-It's a compile time constant, so you wouldn't expect it to have any effect on performance, but just to be sure I also did a run where I moved `characters` into a field on the class. As expected the runtimes did not change.
+### Matching special characters with SearchValues<T>
+Instead of `!char.IsAsciiLetterOrDigit`, I tried `System.Buffer.SearchValues` with a span of special characters. This added ~20ns to the runtime. ( See `Searching.cs` for code. )
+
 
 ## Addendum
 
