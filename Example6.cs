@@ -9,15 +9,22 @@ namespace PasswordGen
     [CategoriesColumn]
     public class Example6
     {
+        private const string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+        private const string charactersShortSet = "abcdefghjkmnpqrstuwxyzABCDEFGHJKLMNPQRSTVWXYZ0123456789@#$%&()_+";
+
+        [Params(0, 1, 2)]
+        public int MinmumSpecialCharacters { get; set; }
+
+        [Params(14, 24, 32)]
+        public int Length { get; set; }
+
         [BenchmarkCategory("Vulnerable"), Benchmark(Baseline = true)]
-        [Arguments(24, 0)]
-        public string GeneratePassword(int length, int minmumSpecialCharacters)
+        public string GeneratePassword()
         {
             string password = "";
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
             System.Random random = new System.Random();
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < Length; i++)
             {
                 password += characters[random.Next(characters.Length)];
             }
@@ -25,13 +32,11 @@ namespace PasswordGen
         }
 
         [BenchmarkCategory("Secure"), Benchmark(Baseline = true)]
-        [Arguments(24, 0)]
-        public string SecureRandom(int length, int minmumSpecialCharacters)
+        public string SecureRandom()
         {
             string password = "";
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < Length; i++)
             {
                 password += characters[RandomNumberGenerator.GetInt32(characters.Length)];
             }
@@ -39,19 +44,13 @@ namespace PasswordGen
         }
 
         [BenchmarkCategory("Vulnerable"), Benchmark()]
-        [Arguments(24, 0)]
-        [Arguments(24, 1)]
-        [Arguments(24, 2)]
-        public string GetItemsWithRejection(int length, int minmumSpecialCharacters)
+        public string GetItemsWithRejection()
         {
-
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-
             while (true)
             {
-                char[] buffer = Random.Shared.GetItems<char>(characters, length);
+                char[] buffer = Random.Shared.GetItems<char>(characters, Length);
 
-                if ((buffer.Length - buffer.Count(char.IsAsciiLetterOrDigit)) >= minmumSpecialCharacters)
+                if ((buffer.Length - buffer.Count(char.IsAsciiLetterOrDigit)) >= MinmumSpecialCharacters)
                 {
                     return new(buffer);
                 }
@@ -60,39 +59,32 @@ namespace PasswordGen
         }
 
         [BenchmarkCategory("Secure"), Benchmark()]
-        [Arguments(24, 0)]
-        [Arguments(24, 1)]
-        [Arguments(24, 2)]
-        public string GetItemsWithRejectionSecure(int length, int minmumSpecialCharacters)
+        public string GetItemsWithRejectionSecure()
         {
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
             while (true)
             {
-                char[] buffer = RandomNumberGenerator.GetItems<char>(characters, length);
+                char[] buffer = RandomNumberGenerator.GetItems<char>(characters, Length);
 
-                if ((buffer.Length - buffer.Count(char.IsAsciiLetterOrDigit)) >= minmumSpecialCharacters)
+                if ((buffer.Length - buffer.Count(char.IsAsciiLetterOrDigit)) >= MinmumSpecialCharacters)
                 {
                     return new(buffer);
                 }
             }
         }
 
+
         [BenchmarkCategory("Vulnerable"), Benchmark()]
-        [Arguments(24, 0)]
-        [Arguments(24, 1)]
-        [Arguments(24, 2)]
-        public string SpecialLoop(int length, int minmumSpecialCharacters)
+        public string SpecialLoop()
         {
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-            char[] buffer = new char[length];
+            char[] buffer = new char[Length];
             while (true)
             {
                 Random.Shared.GetItems<char>(characters, buffer);
                 int specialChars = 0;
 
-                for (int i = 0; i < length; i++)
+                for (int i = 0; i < Length; i++)
                 {
-                    if (!char.IsAsciiLetterOrDigit(buffer[i]) && (++specialChars >= minmumSpecialCharacters))
+                    if (!char.IsAsciiLetterOrDigit(buffer[i]) && (++specialChars >= MinmumSpecialCharacters))
                     {
                         return new(buffer);
                     }
@@ -101,21 +93,17 @@ namespace PasswordGen
         }
 
         [BenchmarkCategory("Secure"), Benchmark()]
-        [Arguments(24, 0)]
-        [Arguments(24, 1)]
-        [Arguments(24, 2)]
-        public string SpecialLoopSecure(int length, int minmumSpecialCharacters)
+        public string SpecialLoopSecure()
         {
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-            char[] buffer = new char[length];
+            char[] buffer = new char[Length];
             while (true)
             {
                 RandomNumberGenerator.GetItems<char>(characters, buffer);
                 int specialChars = 0;
 
-                for (int i = 0; i < length; i++)
+                for (int i = 0; i < Length; i++)
                 {
-                    if (!char.IsAsciiLetterOrDigit(buffer[i]) && (++specialChars >= minmumSpecialCharacters))
+                    if (!char.IsAsciiLetterOrDigit(buffer[i]) && (++specialChars >= MinmumSpecialCharacters))
                     {
                         return new(buffer);
                     }
@@ -124,14 +112,10 @@ namespace PasswordGen
         }
 
         [BenchmarkCategory("Vulnerable"), Benchmark()]
-        [Arguments(24, 0)]
-        [Arguments(24, 1)]
-        [Arguments(24, 2)]
-        public string StackAlloc(int length, int minmumSpecialCharacters)
+        public string StackAlloc()
         {
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
-            Span<char> buffer = stackalloc char[length];
+            Span<char> buffer = stackalloc char[Length];
 
             while (true)
             {
@@ -139,9 +123,9 @@ namespace PasswordGen
 
                 int specialChars = 0;
 
-                for (int i = 0; i < length; i++)
+                for (int i = 0; i < Length; i++)
                 {
-                    if (!char.IsAsciiLetterOrDigit(buffer[i]) && (++specialChars >= minmumSpecialCharacters))
+                    if (!char.IsAsciiLetterOrDigit(buffer[i]) && (++specialChars >= MinmumSpecialCharacters))
                     {
                         return new(buffer);
                     }
@@ -151,14 +135,10 @@ namespace PasswordGen
         }
 
         [BenchmarkCategory("Secure"), Benchmark()]
-        [Arguments(24, 0)]
-        [Arguments(24, 1)]
-        [Arguments(24, 2)]
-        public string StackAllocSecure(int length, int minmumSpecialCharacters)
+        public string StackAllocSecure()
         {
-            string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
 
-            Span<char> buffer = stackalloc char[length];
+            Span<char> buffer = stackalloc char[Length];
 
             while (true)
             {
@@ -166,9 +146,9 @@ namespace PasswordGen
 
                 int specialChars = 0;
 
-                for (int i = 0; i < length; i++)
+                for (int i = 0; i < Length; i++)
                 {
-                    if (!char.IsAsciiLetterOrDigit(buffer[i]) && (++specialChars >= minmumSpecialCharacters))
+                    if (!char.IsAsciiLetterOrDigit(buffer[i]) && (++specialChars >= MinmumSpecialCharacters))
                     {
                         return new(buffer);
                     }
@@ -176,6 +156,5 @@ namespace PasswordGen
 
             }
         }
-
     }
 }
