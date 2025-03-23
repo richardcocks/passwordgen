@@ -87,6 +87,7 @@ For this example I'll post the whole class, for future examples I'll just post i
 
 <details>
 <summary>Example1.cs</summary>
+
 ```csharp
 using System.Security.Cryptography;
 using BenchmarkDotNet.Attributes;
@@ -141,6 +142,7 @@ namespace PasswordGen
     }
 }
 ```
+
 <details>
 
 ```
