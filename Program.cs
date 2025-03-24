@@ -15,6 +15,6 @@ BenchmarkRunner.Run<Example7>();
 BenchmarkRunner.Run<SearchValuesLookup>();
 */
 
+BenchmarkRunner.Run<Example5>();
 
-
-BenchmarkRunner.Run<PasswordGenerator>();
+// BenchmarkRunner.Run<PasswordGenerator>();
