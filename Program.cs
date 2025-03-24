@@ -12,8 +12,10 @@ BenchmarkRunner.Run<Example4>();
 BenchmarkRunner.Run<Example5>();
 BenchmarkRunner.Run<Example6>();
 BenchmarkRunner.Run<Example7>();
+BenchmarkRunner.Run<Example8>();
 BenchmarkRunner.Run<SearchValuesLookup>();
 */
+
 
 
 
