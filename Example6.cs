@@ -5,8 +5,6 @@ using BenchmarkDotNet.Configs;
 namespace PasswordGen
 {
     [MemoryDiagnoser]
-    [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
-    [CategoriesColumn]
     public class Example6
     {
         private const string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
@@ -18,47 +16,44 @@ namespace PasswordGen
         [Params(14, 24, 32)]
         public int Length { get; set; }
 
-        [BenchmarkCategory("Vulnerable"), Benchmark(Baseline = true)]
-        public string GeneratePassword()
+        [Benchmark(Baseline = true)]
+        public string GetItemsSecure()
         {
-            string password = "";
-            System.Random random = new System.Random();
-
-            for (int i = 0; i < Length; i++)
-            {
-                password += characters[random.Next(characters.Length)];
-            }
-            return password;
+            char[] buffer = RandomNumberGenerator.GetItems<char>(characters, Length);
+            return new(buffer);
         }
 
-        [BenchmarkCategory("Secure"), Benchmark(Baseline = true)]
-        public string SecureRandom()
+        [Benchmark()]
+        public string RejectionSampleSecure()
         {
-            string password = "";
+            byte[] bytebuffer = new byte[Length];
+            char[] buffer = new char[Length];
 
-            for (int i = 0; i < Length; i++)
-            {
-                password += characters[RandomNumberGenerator.GetInt32(characters.Length)];
-            }
-            return password;
-        }
-
-        [BenchmarkCategory("Vulnerable"), Benchmark()]
-        public string GetItemsWithRejection()
-        {
             while (true)
             {
-                char[] buffer = Random.Shared.GetItems<char>(characters, Length);
+                RandomNumberGenerator.Fill(bytebuffer);
+                int specialChars = 0;
+                bool metMinimum = false;
 
-                if ((buffer.Length - buffer.Count(char.IsAsciiLetterOrDigit)) >= MinmumSpecialCharacters)
+                for (int i = 0; i < Length; i++)
                 {
+                    if (!metMinimum && (bytebuffer[i] > 54) && (++specialChars >= MinmumSpecialCharacters))
+                    {
+                        metMinimum = true;
+                    }
+
+                    buffer[i] = charactersShortSet[bytebuffer[i] % 64];
+                }
+
+                if (metMinimum)
+                {
+
                     return new(buffer);
                 }
             }
-
         }
 
-        [BenchmarkCategory("Secure"), Benchmark()]
+        [Benchmark()]
         public string GetItemsWithRejectionSecure()
         {
             while (true)
@@ -72,27 +67,7 @@ namespace PasswordGen
             }
         }
 
-
-        [BenchmarkCategory("Vulnerable"), Benchmark()]
-        public string SpecialLoop()
-        {
-            char[] buffer = new char[Length];
-            while (true)
-            {
-                Random.Shared.GetItems<char>(characters, buffer);
-                int specialChars = 0;
-
-                for (int i = 0; i < Length; i++)
-                {
-                    if (!char.IsAsciiLetterOrDigit(buffer[i]) && (++specialChars >= MinmumSpecialCharacters))
-                    {
-                        return new(buffer);
-                    }
-                }
-            }
-        }
-
-        [BenchmarkCategory("Secure"), Benchmark()]
+        [Benchmark()]
         public string SpecialLoopSecure()
         {
             char[] buffer = new char[Length];
@@ -111,33 +86,9 @@ namespace PasswordGen
             }
         }
 
-        [BenchmarkCategory("Vulnerable"), Benchmark()]
-        public string StackAlloc()
-        {
-
-            Span<char> buffer = stackalloc char[Length];
-
-            while (true)
-            {
-                Random.Shared.GetItems<char>(characters, buffer);
-
-                int specialChars = 0;
-
-                for (int i = 0; i < Length; i++)
-                {
-                    if (!char.IsAsciiLetterOrDigit(buffer[i]) && (++specialChars >= MinmumSpecialCharacters))
-                    {
-                        return new(buffer);
-                    }
-                }
-
-            }
-        }
-
-        [BenchmarkCategory("Secure"), Benchmark()]
+        [Benchmark()]
         public string StackAllocSecure()
         {
-
             Span<char> buffer = stackalloc char[Length];
 
             while (true)
@@ -154,6 +105,35 @@ namespace PasswordGen
                     }
                 }
 
+            }
+        }
+
+        [Benchmark()]
+        public string RejectionSampleStackAlloc()
+        {
+            Span<byte> bytebuffer = stackalloc byte[Length];
+            Span<char> buffer = stackalloc char[Length];
+
+            while (true)
+            {
+                RandomNumberGenerator.Fill(bytebuffer);
+                int specialChars = 0;
+                bool metMinimum = false;
+
+                for (int i = 0; i < Length; i++)
+                {
+                    if (!metMinimum && (bytebuffer[i] > 54) && (++specialChars >= MinmumSpecialCharacters))
+                    {
+                        metMinimum = true;
+                    }
+
+                    buffer[i] = charactersShortSet[bytebuffer[i] % 64];
+                }
+
+                if (metMinimum)
+                {
+                    return new(buffer);
+                }
             }
         }
     }
